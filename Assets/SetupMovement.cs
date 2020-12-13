@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SetupCamInput : MonoBehaviour
+public class SetupMovement : MonoBehaviour
 {
     [SerializeField] private float speed = 1;
     [SerializeField] private float mouseSpeed = 1;
@@ -25,8 +25,8 @@ public class SetupCamInput : MonoBehaviour
         if (Input.GetMouseButton(1))
         {
             Cursor.lockState = CursorLockMode.Locked;
-            transform.Rotate(transform.right    , Input.GetAxis("Mouse Y") * mouseSpeed * Time.deltaTime, Space.World);
-            transform.Rotate(new Vector3(0,1,0) , Input.GetAxis("Mouse X") * mouseSpeed * Time.deltaTime, Space.World);
+            transform.Rotate(new Vector3(1, 0, 0), Input.GetAxis("Mouse Y") * mouseSpeed * Time.deltaTime, Space.World);
+            transform.Rotate( new Vector3(0,1,0) , Input.GetAxis("Mouse X") * mouseSpeed * Time.deltaTime, Space.World);
         }
 
         else
