@@ -8,6 +8,7 @@ public class TargetingSystem : MonoBehaviour
     [SerializeField] private LayerMask layer;
 
     Vector3 worldPosition;
+    Vector3 localPosition;
 
     // Update is called once per frame
     void Update()
@@ -20,8 +21,8 @@ public class TargetingSystem : MonoBehaviour
             if (Physics.Raycast(ray, out hit, rayCastLength))
             {
                 worldPosition = hit.point;
-                print("yolo");
-                print(hit.point);
+                localPosition = transform.InverseTransformPoint(hit.point);
+                print(localPosition);
             }
         }
     }

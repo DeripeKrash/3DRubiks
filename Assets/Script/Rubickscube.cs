@@ -17,8 +17,6 @@ public class Rubickscube : MonoBehaviour
     [SerializeField] Material Color5;
     [SerializeField] Material Color6;
 
-<<<<<<< HEAD
-=======
     List<Transform> color1Faces = new List<Transform>();
     List<Transform> color2Faces = new List<Transform>();
     List<Transform> color3Faces = new List<Transform>();
@@ -33,7 +31,6 @@ public class Rubickscube : MonoBehaviour
     float TimeCount;
     bool rotate = false;
 
->>>>>>> 020053c5d12f23fcccac5972ea835d757f590869
     // Start is called before the first frame update
     void Start()
     {
@@ -54,16 +51,8 @@ public class Rubickscube : MonoBehaviour
                         newCube.transform.localScale = new Vector3(1.0f / size, 1.0f / size, 1.0f / size);
                         
                         newCube.transform.parent = transform; // Put new Cube under the Rubicks Cube
-<<<<<<< HEAD
 
                         newCube.transform.position = transform.position;
-
-                        newCube.transform.GetChild(0).position = new Vector3(i * (1.0f / size), j * (1.0f / size), k * (1.0f / size));
-                        newCube.transform.GetChild(0).position -= new Vector3(U, U, U);
-=======
-
-                        newCube.transform.position = transform.position;
->>>>>>> 020053c5d12f23fcccac5972ea835d757f590869
 
                         newCube.transform.GetChild(0).position = new Vector3(i * (1.0f / size), j * (1.0f / size), k * (1.0f / size));
                         newCube.transform.GetChild(0).position -= new Vector3(U, U, U);
@@ -93,20 +82,6 @@ public class Rubickscube : MonoBehaviour
                             newCube.AddFace(color6Faces, - Vector3.forward, Color6, 6);
                         }
 
-                        
-                        if (i == 0)
-                        {
-                            newCube.AddFace(Vector3.forward, Color1);
-                        }
-                        /*if (j == 0)
-                        {
-                            newCube.AddFace(Vector3.up, Color2);
-                        }
-                        if (k == 0)
-                        {
-                            newCube.AddFace(Vector3.forward, Color3);
-                        }*/
-
                         visibleCubes.Add(newCube);
                     }
                 }
@@ -128,40 +103,6 @@ public class Rubickscube : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-<<<<<<< HEAD
-        
-        //RotateLine(2, 1);
-    }
-
-    /*void RotateLine(uint J, float angle)
-    {
-        for (int i = 0; i < visibleCubes.Count; i++)
-        {
-            if (visibleCubes[i].j == J)
-            {
-                visibleCubes[i].transform.Rotate(new Vector3(0,angle,0));
-            }
-
-        }
-    }*/
-
-    IEnumerator RotateLine(float duration)
-    {
-        float actualTime = 0;
-        float lastTime = Time.time;
-
-        while (duration - actualTime > 0)
-        {
-            actualTime += Time.time - lastTime;
-            lastTime = Time.time;
-
-
-
-            yield return new WaitForEndOfFrame();
-        }
-
-        yield break;
-=======
         TimeCount += Time.deltaTime;
 
         if (TimeCount > 2)
@@ -214,7 +155,7 @@ public class Rubickscube : MonoBehaviour
     void RotateLineAroundAxis(Vector3 axis, float factor, float height)
     {
         Quaternion Start = transform.rotation;
-        Quaternion End = Start * Quaternion.Euler(axis * 90);
+        Quaternion End = Quaternion.Euler(axis * 90) * Start;
 
         for (int i = 0; i < visibleCubes.Count; i++)
         {
@@ -235,7 +176,7 @@ public class Rubickscube : MonoBehaviour
         float lastTime   = Time.time;
 
         Quaternion Start = transform.rotation;
-        Quaternion End = Start * Quaternion.Euler(axis * 90);
+        Quaternion End = Quaternion.Euler(axis * 90) * Start;
 
         while (duration - actualTime > 0)
         {
@@ -310,6 +251,5 @@ public class Rubickscube : MonoBehaviour
         }
 
         return true;
->>>>>>> 020053c5d12f23fcccac5972ea835d757f590869
     }
 }
