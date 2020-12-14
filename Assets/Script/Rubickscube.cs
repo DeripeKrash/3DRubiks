@@ -117,15 +117,15 @@ public class Rubickscube : MonoBehaviour
 
                 if (rot == 0)
                 {
-                    StartCoroutine(RotateLineAround(Vector3.forward, 0.4f, 0.5f));
+                    StartCoroutine(RotateLineAround(transform.forward, 0.4f, 0.5f));
                 }
                 else if (rot == 1)
                 {
-                    StartCoroutine(RotateLineAround(Vector3.right, 0.4f, 0.5f));
+                    StartCoroutine(RotateLineAround(transform.right, 0.4f, 0.5f));
                 }
                 else if (rot == 2)
                 {
-                    StartCoroutine(RotateLineAround(Vector3.up, 0.4f, 0.5f));
+                    StartCoroutine(RotateLineAround(transform.up, 0.4f, 0.5f));
                 }
             }
         }
@@ -155,7 +155,7 @@ public class Rubickscube : MonoBehaviour
     void RotateLineAroundAxis(Vector3 axis, float factor, float height)
     {
         Quaternion Start = transform.rotation;
-        Quaternion End = Start * Quaternion.Euler(axis * 90);
+        Quaternion End = Quaternion.Euler(axis * 90) * Start;
 
         for (int i = 0; i < visibleCubes.Count; i++)
         {
@@ -175,8 +175,14 @@ public class Rubickscube : MonoBehaviour
         float lastFrame  = 0;
         float lastTime   = Time.time;
 
+        Vector3 LocalAxis = transform.worldToLocalMatrix * axis;
+
         Quaternion Start = transform.rotation;
-        Quaternion End = Start * Quaternion.Euler(axis * 90);
+        Quaternion End = Quaternion.AngleAxis(90, axis) * Start;
+
+        Debug.Log(LocalAxis);
+
+
 
         while (duration - actualTime > 0)
         {
@@ -186,6 +192,8 @@ public class Rubickscube : MonoBehaviour
 
             for (int i = 0; i < visibleCubes.Count; i++)
             {
+                Vector3 LocalPosition = transform.worldToLocalMatrix * visibleCubes[i].transform.GetChild(0).position;
+
                 float localHeight = Vector3.Dot(visibleCubes[i].transform.GetChild(0).position, axis);
 
                 if (Mathf.Abs(height - localHeight) < (1.0f / size) / 2.0f)
