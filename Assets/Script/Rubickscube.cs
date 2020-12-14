@@ -175,14 +175,10 @@ public class Rubickscube : MonoBehaviour
         float lastFrame  = 0;
         float lastTime   = Time.time;
 
-        Vector3 LocalAxis = transform.worldToLocalMatrix * axis;
+        //Vector3 LocalAxis = transform.worldToLocalMatrix * axis;
 
         Quaternion Start = transform.rotation;
         Quaternion End = Quaternion.AngleAxis(90, axis) * Start;
-
-        Debug.Log(LocalAxis);
-
-
 
         while (duration - actualTime > 0)
         {
