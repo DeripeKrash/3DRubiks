@@ -208,7 +208,6 @@ public class Rubickscube : MonoBehaviour
 
         }
 
-        Debug.Log(CheckVictory());
         rotate = false;
         TimeCount = 0;
 
@@ -244,8 +243,6 @@ public class Rubickscube : MonoBehaviour
 
     bool CheckFaceList(List<Transform> list)
     {
-        //Debug.Log(list.Count);
-
         for (int i = 1; i < list.Count; i++)
         {
             if ((list[i].forward - list[0].forward).magnitude > 0.1f)
