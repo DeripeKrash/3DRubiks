@@ -204,7 +204,7 @@ public class Rubickscube : MonoBehaviour
 
         }
 
-        Debug.Log(CheckVictory());
+        //Debug.Log(CheckVictory());
         rotate = false;
         TimeCount = 0;
 

@@ -7,8 +7,12 @@ public class TargetingSystem : MonoBehaviour
     [SerializeField] private float rayCastLength = 1;
     [SerializeField] private LayerMask layer;
 
-    Vector3 worldPosition;
-    Vector3 localPosition;
+    public Vector3 rotationVector;
+
+    private Vector3 lockPoint;
+    private Vector3 worldPosition;
+    private Vector3 localPosition;
+    private bool getPointOnTheCube;
 
     // Update is called once per frame
     void Update()
@@ -18,12 +22,26 @@ public class TargetingSystem : MonoBehaviour
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
 
-            if (Physics.Raycast(ray, out hit, rayCastLength))
+            if (Physics.Raycast(ray, out hit, rayCastLength) && getPointOnTheCube == false)
             {
                 worldPosition = hit.point;
                 localPosition = transform.InverseTransformPoint(hit.point);
-                print(localPosition);
+                getPointOnTheCube = true;
+                lockPoint = worldPosition;
             }
+
+            else if (getPointOnTheCube == true)
+            {
+                Vector3 mousePos    = Input.mousePosition;
+                mousePos.z          = (hit.point - Camera.main.transform.position).magnitude;
+                worldPosition       = Camera.main.ScreenToWorldPoint(mousePos);
+                rotationVector      = worldPosition - lockPoint;
+            }
+        }
+
+        else if (!Input.GetMouseButton(0))
+        {
+            getPointOnTheCube = false;
         }
     }
 }

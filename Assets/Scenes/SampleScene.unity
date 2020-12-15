@@ -1273,7 +1273,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba3cc149724289c4c9beb5d6ecbb59d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: -500
+  speed: 0
   mouseSpeed: -500
 --- !u!114 &2100868498
 MonoBehaviour:
@@ -1291,3 +1291,4 @@ MonoBehaviour:
   layer:
     serializedVersion: 2
     m_Bits: 0
+  rotationVector: {x: 0, y: 0, z: 0}
