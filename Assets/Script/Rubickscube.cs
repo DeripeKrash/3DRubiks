@@ -28,8 +28,10 @@ public class Rubickscube : MonoBehaviour
 
     [SerializeField] bool optimizedDisplay = true;
 
+    float lastUsedFactor;
+
     float TimeCount;
-    bool rotate = false;
+    public bool rotate = false;
 
     // Start is called before the first frame update
     void Start()
@@ -103,7 +105,7 @@ public class Rubickscube : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        TimeCount += Time.deltaTime;
+        //TimeCount += Time.deltaTime;
 
         if (TimeCount > 2)
         {
@@ -155,22 +157,91 @@ public class Rubickscube : MonoBehaviour
     void RotateLineAroundAxis(Vector3 axis, float factor, float height)
     {
         Quaternion Start = transform.rotation;
-        Quaternion End = Quaternion.Euler(axis * 90) * Start;
+        Quaternion End = Quaternion.AngleAxis(90, axis) * Start;
 
+  
         for (int i = 0; i < visibleCubes.Count; i++)
         {
+            //Vector3 LocalPosition = transform.worldToLocalMatrix * visibleCubes[i].transform.GetChild(0).position;
+
             float localHeight = Vector3.Dot(visibleCubes[i].transform.GetChild(0).position, axis);
 
             if (Mathf.Abs(height - localHeight) < (1.0f / size) / 2.0f)
             {
-                visibleCubes[i].transform.rotation = End  * visibleCubes[i].transform.rotation;
+                Quaternion reset = Quaternion.Slerp(Start, End, lastUsedFactor);
+                reset.x *= -1;
+                reset.y *= -1;
+                reset.z *= -1;
+
+                visibleCubes[i].transform.rotation = reset * visibleCubes[i].transform.rotation;
+                visibleCubes[i].transform.rotation = Quaternion.Slerp(Start, End, factor) * visibleCubes[i].transform.rotation;
             }
         }
 
+        lastUsedFactor = factor;
+
     }
 
-    IEnumerator RotateLineAround(Vector3 axis, float height, float duration)
+    public Vector3 SortVector(Vector3 normal, Vector3 vect)
     {
+        Vector3 localNormal = transform.InverseTransformPoint(normal);
+        Vector3 localVect   = transform.InverseTransformPoint(vect);
+
+        localNormal.x = Mathf.Abs(localNormal.x);
+        localNormal.y = Mathf.Abs(localNormal.y);
+        localNormal.z = Mathf.Abs(localNormal.z);
+
+        localVect.x = Mathf.Abs(localVect.x);
+        localVect.y = Mathf.Abs(localVect.y);
+        localVect.z = Mathf.Abs(localVect.z);
+
+
+        if ((localNormal - Vector3.forward).magnitude <= 0.1)
+        {
+            if (Vector3.Dot(localVect, Vector3.up) < Vector3.Dot(localVect, Vector3.right))
+            {
+                return transform.up;
+            }
+            else
+            {
+                return transform.right;
+            }
+        }
+        else if ((localNormal - Vector3.up).magnitude <= 0.1)
+        {
+            if (Vector3.Dot(localVect, Vector3.right) < Vector3.Dot(localVect, Vector3.forward))
+            {
+                return transform.right;
+            }
+            else
+            {
+                return transform.forward;
+            }
+        }
+        else if ((localNormal - Vector3.right).magnitude <= 0.1)
+        {
+            if (Vector3.Dot(localVect, Vector3.forward) < Vector3.Dot(localVect, Vector3.up))
+            {
+                return transform.forward;
+            }
+            else
+            {
+                return transform.up;
+            }
+        }
+
+        return Vector3.zero;
+    }
+
+    public IEnumerator RotateLineAround(Vector3 axis, float height, float duration, float direction = 1.0f)
+    {
+        if (rotate)
+        {
+            yield break;
+        }
+
+        rotate = true;
+
         float actualTime = 0;
         float lastFrame  = 0;
         float lastTime   = Time.time;
@@ -178,7 +249,7 @@ public class Rubickscube : MonoBehaviour
         //Vector3 LocalAxis = transform.worldToLocalMatrix * axis;
 
         Quaternion Start = transform.rotation;
-        Quaternion End = Quaternion.AngleAxis(90, axis) * Start;
+        Quaternion End = Quaternion.AngleAxis(90 * direction, axis) * Start;
 
         while (duration - actualTime > 0)
         {
