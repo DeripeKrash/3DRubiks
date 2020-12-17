@@ -9,8 +9,12 @@ public class TargetingSystem : MonoBehaviour
     [SerializeField] private float rayCastLength = 1;
     [SerializeField] private LayerMask layer;
 
-    public Vector3 worldPosition;
-    public Vector3 localPosition;
+    public Vector3 rotationVector;
+
+    private Vector3 lockPoint;
+    private Vector3 worldPosition;
+    private Vector3 localPosition;
+    private bool getPointOnTheCube;
 
     Vector3 refPos;
     Vector3 refworld;
@@ -41,18 +45,22 @@ public class TargetingSystem : MonoBehaviour
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
 
-            if (Physics.Raycast(ray, out hit, rayCastLength))
+            if (Physics.Raycast(ray, out hit, rayCastLength) && !rubick.rotate && getPointOnTheCube == false)
             {
                 worldPosition = hit.point;
                 localPosition = transform.InverseTransformPoint(hit.point);
 
-                if ((refPos - localPosition).magnitude > 0.1)
+                if ((refPos - localPosition).magnitude > 0.2f)
                 {
-
                     Vector3 axis = rubick.SortVector(hit.normal, (worldPosition - refworld).normalized);
 
+                    if (Vector3.Angle(refNormal, hit.normal) != 0 && Vector3.Angle(refNormal, hit.normal) != 180) // Check if two different faces aren't checked
+                    {
+                        return;
+                    }
+
                     Vector3 localAxis = transform.InverseTransformPoint(axis);
-                    Vector3 Value = localPosition;
+                    Vector3 Value = refPos;
                     Value.x *= localAxis.x;
                     Value.y *= localAxis.y;
                     Value.z *= localAxis.z;
@@ -61,7 +69,9 @@ public class TargetingSystem : MonoBehaviour
                     float value2 = Mathf.Min(Value.x, Value.y, Value.z);
 
                     float value;
-                    float direction = 1;
+                    //float direction = rubick.Direction(axis, hit.normal, (hit.point - refworld));
+                    float direction = rubick.Direction(axis, refworld, hit.point);
+
 
                     if (Mathf.Abs(value1) > Mathf.Abs(value2))
                     {
@@ -74,7 +84,22 @@ public class TargetingSystem : MonoBehaviour
 
                     StartCoroutine(rubick.RotateLineAround(axis, value, 0.5f, direction));
                 }
+                //getPointOnTheCube = true;
+                //lockPoint = worldPosition;
             }
+
+            /*else if (getPointOnTheCube == true)
+            {
+                Vector3 mousePos    = Input.mousePosition;
+                mousePos.z          = (hit.point - Camera.main.transform.position).magnitude;
+                worldPosition       = Camera.main.ScreenToWorldPoint(mousePos);
+                rotationVector      = worldPosition - lockPoint;
+            }*/
         }
+
+        /*else if (!Input.GetMouseButton(0))
+        {
+            getPointOnTheCube = false;
+        }*/
     }
 }

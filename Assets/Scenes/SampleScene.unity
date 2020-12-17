@@ -1223,7 +1223,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d2577cb4980471499e36738d589ef33, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  size: 3
+  size: 10
   refCube: {fileID: 2029752532}
   visibleCubes: []
   Color1: {fileID: 2100000, guid: a064a359af665bd489ad1b4445e78bea, type: 2}
@@ -1234,6 +1234,7 @@ MonoBehaviour:
   Color6: {fileID: 2100000, guid: 4fdc3bfc63d3ad64d8c4f363fac392e2, type: 2}
   rot: 0
   optimizedDisplay: 1
+  rotate: 0
 --- !u!4 &2100868495
 Transform:
   m_ObjectHideFlags: 0
@@ -1259,7 +1260,7 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 0.95, y: 0.95, z: 0.95}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &2100868497
 MonoBehaviour:
@@ -1273,7 +1274,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba3cc149724289c4c9beb5d6ecbb59d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: -500
+  speed: 0
   mouseSpeed: -500
 --- !u!114 &2100868498
 MonoBehaviour:
@@ -1291,3 +1292,4 @@ MonoBehaviour:
   layer:
     serializedVersion: 2
     m_Bits: 0
+  rotationVector: {x: 0, y: 0, z: 0}

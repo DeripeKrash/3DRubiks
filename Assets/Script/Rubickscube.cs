@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Rubickscube : MonoBehaviour
 {
-    [SerializeField] uint size = 3;
+    [SerializeField] [Range(3, 10)] uint size = 3;
 
     [SerializeField] VisibleCube refCube;
 
@@ -107,12 +107,12 @@ public class Rubickscube : MonoBehaviour
     {
         //TimeCount += Time.deltaTime;
 
-        if (TimeCount > 2)
+        /*if (TimeCount > 2)
         {
             if (!rotate)
             {
                 rotate = true;
-                //StartCoroutine(RotateLineAround(Vector3.forward, 0.0f, 3));
+                //StartCoroutine(RotateLineAround(Vector3.forward, 0.1f, 0.5f));
                 
                 int axisNb = Random.Range(0, 2);
                 axisNb = 1;
@@ -130,7 +130,7 @@ public class Rubickscube : MonoBehaviour
                     StartCoroutine(RotateLineAround(transform.up, 0.4f, 0.5f));
                 }
             }
-        }
+        }*/
     }
 
     void Shuffle(int shuffle)
@@ -191,14 +191,14 @@ public class Rubickscube : MonoBehaviour
         localNormal.y = Mathf.Abs(localNormal.y);
         localNormal.z = Mathf.Abs(localNormal.z);
 
-        localVect.x = Mathf.Abs(localVect.x);
-        localVect.y = Mathf.Abs(localVect.y);
-        localVect.z = Mathf.Abs(localVect.z);
+        //localVect.x = Mathf.Abs(localVect.x);
+        //localVect.y = Mathf.Abs(localVect.y);
+        //localVect.z = Mathf.Abs(localVect.z);
 
 
         if ((localNormal - Vector3.forward).magnitude <= 0.1)
         {
-            if (Vector3.Dot(localVect, Vector3.up) < Vector3.Dot(localVect, Vector3.right))
+            if (Mathf.Abs(Vector3.Dot(localVect, Vector3.up)) < Mathf.Abs(Vector3.Dot(localVect, Vector3.right)))
             {
                 return transform.up;
             }
@@ -209,7 +209,7 @@ public class Rubickscube : MonoBehaviour
         }
         else if ((localNormal - Vector3.up).magnitude <= 0.1)
         {
-            if (Vector3.Dot(localVect, Vector3.right) < Vector3.Dot(localVect, Vector3.forward))
+            if (Mathf.Abs(Vector3.Dot(localVect, Vector3.right)) < Mathf.Abs(Vector3.Dot(localVect, Vector3.forward)))
             {
                 return transform.right;
             }
@@ -220,7 +220,7 @@ public class Rubickscube : MonoBehaviour
         }
         else if ((localNormal - Vector3.right).magnitude <= 0.1)
         {
-            if (Vector3.Dot(localVect, Vector3.forward) < Vector3.Dot(localVect, Vector3.up))
+            if (Mathf.Abs(Vector3.Dot(localVect, Vector3.forward)) < Mathf.Abs(Vector3.Dot(localVect, Vector3.up)))
             {
                 return transform.forward;
             }
@@ -233,6 +233,11 @@ public class Rubickscube : MonoBehaviour
         return Vector3.zero;
     }
 
+    public float Direction(Vector3 axis, Vector3 start, Vector3 end)
+    {
+        return Vector3.SignedAngle(start, end, axis) / Mathf.Abs(Vector3.SignedAngle(start, end, axis));
+    }
+
     public IEnumerator RotateLineAround(Vector3 axis, float height, float duration, float direction = 1.0f)
     {
         if (rotate)
@@ -243,10 +248,8 @@ public class Rubickscube : MonoBehaviour
         rotate = true;
 
         float actualTime = 0;
-        float lastFrame  = 0;
+        float lastFrame;
         float lastTime   = Time.time;
-
-        //Vector3 LocalAxis = transform.worldToLocalMatrix * axis;
 
         Quaternion Start = transform.rotation;
         Quaternion End = Quaternion.AngleAxis(90 * direction, axis) * Start;
@@ -305,9 +308,7 @@ public class Rubickscube : MonoBehaviour
                     }
                 }
             }
-
         }
-
 
         return false;
     }
