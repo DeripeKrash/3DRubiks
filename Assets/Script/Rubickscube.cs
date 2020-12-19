@@ -2,13 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
+
+
 public class Rubickscube : MonoBehaviour
 {
-    [SerializeField] [Range(3, 10)] uint size = 3;
+    [SerializeField] [Range(2, 10)] public uint size = 3;
 
     [SerializeField] VisibleCube refCube;
 
-    [SerializeField] List<VisibleCube> visibleCubes;
+    [SerializeField] public List<VisibleCube> visibleCubes;
 
     [SerializeField] Material Color1;
     [SerializeField] Material Color2;
@@ -24,19 +28,38 @@ public class Rubickscube : MonoBehaviour
     List<Transform> color5Faces = new List<Transform>();
     List<Transform> color6Faces = new List<Transform>();
 
-    [SerializeField] int rot;
+    [SerializeField] public uint shuffleNumber = 0;
 
     [SerializeField] bool optimizedDisplay = true;
 
+    [SerializeField] VictoryDisplay victoryDisplay = null;
+
+
+
     float lastUsedFactor;
 
-    float TimeCount;
     public bool rotate = false;
+
 
     // Start is called before the first frame update
     void Start()
     {
+        Launch();
 
+        Shuffle();
+    }
+
+    public void SetSize(System.Single _size) // used for the UI
+    {
+        size = (uint)_size;
+    }
+    public void SetShuffle(System.Single shufle) // used for the UI
+    {
+        shuffleNumber = (uint)shufle;
+    }
+
+    void Launch()  // Create the rubicks Cube
+    {
         float U = (0.5f * (size - 1)) / size;
 
         for (uint i = 0; i < size; i++)
@@ -51,14 +74,14 @@ public class Rubickscube : MonoBehaviour
                         VisibleCube newCube = Instantiate(refCube);
 
                         newCube.transform.localScale = new Vector3(1.0f / size, 1.0f / size, 1.0f / size);
-                        
+
                         newCube.transform.parent = transform; // Put new Cube under the Rubicks Cube
 
                         newCube.transform.position = transform.position;
 
                         newCube.transform.GetChild(0).position = new Vector3(i * (1.0f / size), j * (1.0f / size), k * (1.0f / size));
                         newCube.transform.GetChild(0).position -= new Vector3(U, U, U);
-                        
+
                         if (i == 0)
                         {
                             newCube.AddFace(color1Faces, Vector3.right, Color1, 1);
@@ -73,15 +96,15 @@ public class Rubickscube : MonoBehaviour
                         }
                         if (i == size - 1)
                         {
-                            newCube.AddFace(color4Faces, - Vector3.right, Color4, 4);
+                            newCube.AddFace(color4Faces, -Vector3.right, Color4, 4);
                         }
                         if (j == size - 1)
                         {
-                            newCube.AddFace(color5Faces, - Vector3.up, Color5, 5);
+                            newCube.AddFace(color5Faces, -Vector3.up, Color5, 5);
                         }
                         if (k == size - 1)
                         {
-                            newCube.AddFace(color6Faces, - Vector3.forward, Color6, 6);
+                            newCube.AddFace(color6Faces, -Vector3.forward, Color6, 6);
                         }
 
                         visibleCubes.Add(newCube);
@@ -94,72 +117,81 @@ public class Rubickscube : MonoBehaviour
         {
             for (int i = 0; i < visibleCubes.Count; i++)
             {
-                visibleCubes[i].Clean();
+                visibleCubes[i].Optimize();
             }
         }
-
-        //Shuffle(100);
     }
 
+    public void ReLaunch()
+    {
+        for (int i = 0; i < visibleCubes.Count; i++)
+        {
+            Destroy(visibleCubes[i].gameObject);
+        }
+        visibleCubes.Clear();
+
+        color1Faces.Clear();
+        color2Faces.Clear();
+        color3Faces.Clear();
+        color4Faces.Clear();
+        color5Faces.Clear();
+        color6Faces.Clear();
+
+        transform.rotation = Quaternion.identity;
+
+        Launch();
+
+    }
+
+    public void Reset()
+    {
+        ReLaunch();
+        Shuffle();
+    }
 
     // Update is called once per frame
     void Update()
     {
-        //TimeCount += Time.deltaTime;
-
-        /*if (TimeCount > 2)
+        if (Input.GetKeyDown(KeyCode.R))
         {
-            if (!rotate)
-            {
-                rotate = true;
-                //StartCoroutine(RotateLineAround(Vector3.forward, 0.1f, 0.5f));
-                
-                int axisNb = Random.Range(0, 2);
-                axisNb = 1;
-
-                if (rot == 0)
-                {
-                    StartCoroutine(RotateLineAround(transform.forward, 0.4f, 0.5f));
-                }
-                else if (rot == 1)
-                {
-                    StartCoroutine(RotateLineAround(transform.right, 0.4f, 0.5f));
-                }
-                else if (rot == 2)
-                {
-                    StartCoroutine(RotateLineAround(transform.up, 0.4f, 0.5f));
-                }
-            }
-        }*/
+            ReLaunch();
+        }
+        else if (Input.GetKeyDown(KeyCode.S))
+        {
+            Save();
+        }
+        else if (Input.GetKeyDown(KeyCode.L))
+        {
+            Load();
+        }
     }
 
-    void Shuffle(int shuffle)
+    void Shuffle()
     {
-        for (int i = 0; i < shuffle; i++)
+        for (int i = 0; i < shuffleNumber; i++)
         {
-            int axisNb = Random.Range(0, 2);
-            
+            int axisNb = Random.Range(0, 3);
+
             if (axisNb == 0)
             {
-                RotateLineAroundAxis(Vector3.up, 1, Random.Range(-1, 1));
+                QuickRotateLineAroundAxis(Vector3.up, Random.Range(-0.49f, 0.49f));
             }
             else if (axisNb == 1)
             {
-                RotateLineAroundAxis(Vector3.forward, 1, Random.Range(-1, 1));
+                QuickRotateLineAroundAxis(Vector3.forward, Random.Range(-0.49f, 0.49f));
             }
             else if (axisNb == 2)
             {
-                RotateLineAroundAxis(Vector3.right, 1, Random.Range(-1, 1));
+                QuickRotateLineAroundAxis(Vector3.right, Random.Range(-0.49f, 0.49f));
             }
         }
     }
 
-    void RotateLineAroundAxis(Vector3 axis, float factor, float height)
+    void RotateLineAroundAxis(Vector3 axis, float factor, float oldFactor, float height, float direction = 1.0f)
     {
         Quaternion Start = transform.rotation;
-        Quaternion End = Quaternion.AngleAxis(90, axis) * Start;
+        Quaternion End = Quaternion.AngleAxis(90 * direction, axis) * Start;
 
-  
         for (int i = 0; i < visibleCubes.Count; i++)
         {
             //Vector3 LocalPosition = transform.worldToLocalMatrix * visibleCubes[i].transform.GetChild(0).position;
@@ -168,18 +200,30 @@ public class Rubickscube : MonoBehaviour
 
             if (Mathf.Abs(height - localHeight) < (1.0f / size) / 2.0f)
             {
-                Quaternion reset = Quaternion.Slerp(Start, End, lastUsedFactor);
+                Quaternion reset = Quaternion.Slerp(Start, End, oldFactor);
                 reset.x *= -1;
                 reset.y *= -1;
                 reset.z *= -1;
 
                 visibleCubes[i].transform.rotation = reset * visibleCubes[i].transform.rotation;
-                visibleCubes[i].transform.rotation = Quaternion.Slerp(Start, End, factor) * visibleCubes[i].transform.rotation;
+                visibleCubes[i].transform.rotation = Quaternion.Slerp(Start, End, 1) * visibleCubes[i].transform.rotation;
             }
         }
+    }
 
-        lastUsedFactor = factor;
+    void QuickRotateLineAroundAxis(Vector3 axis, float height) // Only used for Shuffle
+    {
+        Quaternion End = Quaternion.AngleAxis(90, axis) * transform.rotation;
 
+        for (int i = 0; i < visibleCubes.Count; i++)
+        {
+            float localHeight = Vector3.Dot(visibleCubes[i].transform.GetChild(0).position, axis);
+
+            if (Mathf.Abs(height - localHeight) < (1.0f / size) / 2.0f)
+            {
+                visibleCubes[i].transform.rotation = End * visibleCubes[i].transform.rotation;
+            }
+        }
     }
 
     public Vector3 SortVector(Vector3 normal, Vector3 vect)
@@ -190,11 +234,6 @@ public class Rubickscube : MonoBehaviour
         localNormal.x = Mathf.Abs(localNormal.x);
         localNormal.y = Mathf.Abs(localNormal.y);
         localNormal.z = Mathf.Abs(localNormal.z);
-
-        //localVect.x = Mathf.Abs(localVect.x);
-        //localVect.y = Mathf.Abs(localVect.y);
-        //localVect.z = Mathf.Abs(localVect.z);
-
 
         if ((localNormal - Vector3.forward).magnitude <= 0.1)
         {
@@ -262,8 +301,6 @@ public class Rubickscube : MonoBehaviour
 
             for (int i = 0; i < visibleCubes.Count; i++)
             {
-                Vector3 LocalPosition = transform.worldToLocalMatrix * visibleCubes[i].transform.GetChild(0).position;
-
                 float localHeight = Vector3.Dot(visibleCubes[i].transform.GetChild(0).position, axis);
 
                 if (Mathf.Abs(height - localHeight) < (1.0f / size) / 2.0f)
@@ -278,14 +315,23 @@ public class Rubickscube : MonoBehaviour
                 }
             }
 
+            DisplayVictory();
+
             yield return new WaitForEndOfFrame();
 
         }
 
         rotate = false;
-        TimeCount = 0;
 
         yield break;
+    }
+
+    void DisplayVictory()
+    {
+        if (victoryDisplay)
+        {
+            victoryDisplay.UpdateDisplay(CheckVictory());
+        }
     }
 
     bool CheckVictory()
@@ -325,4 +371,35 @@ public class Rubickscube : MonoBehaviour
 
         return true;
     }
+
+
+
+    public void Save()
+    {
+        BinaryFormatter formatter = new BinaryFormatter();
+        string path = Application.persistentDataPath + "/RubicksCubeWilliamDenis.save";
+        FileStream stream = new FileStream(path, FileMode.Create);
+
+
+        SaveData data = new SaveData(this);
+
+        formatter.Serialize(stream, data);
+        stream.Close();
+    }
+
+    public void Load()
+    {
+        string path = Application.persistentDataPath + "/RubicksCubeWilliamDenis.save";
+
+        if (File.Exists(path))
+        {
+            BinaryFormatter formatter = new BinaryFormatter();
+            FileStream stream = new FileStream(path, FileMode.Open);
+
+            SaveData data = formatter.Deserialize(stream) as SaveData;
+            data.Load(this);
+            stream.Close();
+        }
+    }
+
 }

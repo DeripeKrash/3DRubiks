@@ -6,7 +6,7 @@ public class TargetingSystem : MonoBehaviour
 {
     Rubickscube rubick;
 
-    [SerializeField] private float rayCastLength = 1;
+    [SerializeField] private float rayCastLength = 1000.0f;
     [SerializeField] private LayerMask layer;
 
     public Vector3 rotationVector;
@@ -82,24 +82,13 @@ public class TargetingSystem : MonoBehaviour
                         value = value2;
                     };
 
+                    //Debug.Log(value);
+
                     StartCoroutine(rubick.RotateLineAround(axis, value, 0.5f, direction));
                 }
                 //getPointOnTheCube = true;
                 //lockPoint = worldPosition;
             }
-
-            /*else if (getPointOnTheCube == true)
-            {
-                Vector3 mousePos    = Input.mousePosition;
-                mousePos.z          = (hit.point - Camera.main.transform.position).magnitude;
-                worldPosition       = Camera.main.ScreenToWorldPoint(mousePos);
-                rotationVector      = worldPosition - lockPoint;
-            }*/
         }
-
-        /*else if (!Input.GetMouseButton(0))
-        {
-            getPointOnTheCube = false;
-        }*/
     }
 }

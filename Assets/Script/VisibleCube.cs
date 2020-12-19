@@ -49,7 +49,7 @@ public class VisibleCube : MonoBehaviour
         }
     }
 
-    public void Clean()
+    public void Optimize(bool active = true)
     {
         for (int i = 0; i < transform.GetChild(0).childCount; i++)
         {
@@ -63,7 +63,7 @@ public class VisibleCube : MonoBehaviour
             }
             if (clear)
             {
-                Destroy(transform.GetChild(0).GetChild(i).gameObject);
+                transform.GetChild(0).GetChild(i).gameObject.SetActive(active);
             }
         }
     }
