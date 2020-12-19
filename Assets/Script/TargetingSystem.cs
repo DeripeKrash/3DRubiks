@@ -62,11 +62,13 @@ public class TargetingSystem : MonoBehaviour
 
                     Vector3 localAxis = transform.InverseTransformPoint(axis);
 
-                    float value = Vector3.Dot(localAxis, refPos);
+                    float height = Vector3.Dot(localAxis, refPos);
                     float direction = Direction(axis, refworld, hit.point);
 
+                    StartCoroutine(rubick.RotateLineAround(axis, height, 0.5f, direction));
+                    rubick.rotate = true;
 
-                    StartCoroutine(rubick.RotateLineAround(axis, value, 0.5f, direction));
+                    //rubick.RotateLineAroundAxis();
                 }
             }
         }

@@ -207,6 +207,8 @@ public class Rubickscube : MonoBehaviour
                 visibleCubes[i].transform.rotation = Quaternion.Slerp(Start, End, factor) * visibleCubes[i].transform.rotation;
             }
         }
+
+        DisplayVictory();
     }
 
     void QuickRotateLineAroundAxis(Vector3 axis, float height) // Only used for Shuffle
@@ -222,6 +224,7 @@ public class Rubickscube : MonoBehaviour
                 visibleCubes[i].transform.rotation = End * visibleCubes[i].transform.rotation;
             }
         }
+        DisplayVictory();
     }
 
     public IEnumerator RotateLineAround(Vector3 axis, float height, float duration, float direction = 1.0f)
@@ -237,8 +240,8 @@ public class Rubickscube : MonoBehaviour
         float lastFrame;
         float lastTime   = Time.time;
 
-        Quaternion Start = transform.rotation;
-        Quaternion End = Quaternion.AngleAxis(90 * direction, axis) * Start;
+        //Quaternion Start = transform.rotation;
+        //Quaternion End = Quaternion.AngleAxis(90 * direction, axis) * Start;
 
         while (duration - actualTime > 0)
         {
@@ -247,8 +250,6 @@ public class Rubickscube : MonoBehaviour
             lastTime = Time.time;
 
             RotateLineAroundAxis(axis, height, actualTime / duration, lastFrame / duration, direction);
-
-            DisplayVictory();
 
             yield return new WaitForEndOfFrame();
 
