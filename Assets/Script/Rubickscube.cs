@@ -187,15 +187,13 @@ public class Rubickscube : MonoBehaviour
         }
     }
 
-    void RotateLineAroundAxis(Vector3 axis, float factor, float oldFactor, float height, float direction = 1.0f)
+    public void RotateLineAroundAxis(Vector3 axis, float height, float factor, float oldFactor, float direction = 1.0f)
     {
         Quaternion Start = transform.rotation;
         Quaternion End = Quaternion.AngleAxis(90 * direction, axis) * Start;
 
         for (int i = 0; i < visibleCubes.Count; i++)
         {
-            //Vector3 LocalPosition = transform.worldToLocalMatrix * visibleCubes[i].transform.GetChild(0).position;
-
             float localHeight = Vector3.Dot(visibleCubes[i].transform.GetChild(0).position, axis);
 
             if (Mathf.Abs(height - localHeight) < (1.0f / size) / 2.0f)
@@ -206,7 +204,7 @@ public class Rubickscube : MonoBehaviour
                 reset.z *= -1;
 
                 visibleCubes[i].transform.rotation = reset * visibleCubes[i].transform.rotation;
-                visibleCubes[i].transform.rotation = Quaternion.Slerp(Start, End, 1) * visibleCubes[i].transform.rotation;
+                visibleCubes[i].transform.rotation = Quaternion.Slerp(Start, End, factor) * visibleCubes[i].transform.rotation;
             }
         }
     }
@@ -224,57 +222,6 @@ public class Rubickscube : MonoBehaviour
                 visibleCubes[i].transform.rotation = End * visibleCubes[i].transform.rotation;
             }
         }
-    }
-
-    public Vector3 SortVector(Vector3 normal, Vector3 vect)
-    {
-        Vector3 localNormal = transform.InverseTransformPoint(normal);
-        Vector3 localVect   = transform.InverseTransformPoint(vect);
-
-        localNormal.x = Mathf.Abs(localNormal.x);
-        localNormal.y = Mathf.Abs(localNormal.y);
-        localNormal.z = Mathf.Abs(localNormal.z);
-
-        if ((localNormal - Vector3.forward).magnitude <= 0.1)
-        {
-            if (Mathf.Abs(Vector3.Dot(localVect, Vector3.up)) < Mathf.Abs(Vector3.Dot(localVect, Vector3.right)))
-            {
-                return transform.up;
-            }
-            else
-            {
-                return transform.right;
-            }
-        }
-        else if ((localNormal - Vector3.up).magnitude <= 0.1)
-        {
-            if (Mathf.Abs(Vector3.Dot(localVect, Vector3.right)) < Mathf.Abs(Vector3.Dot(localVect, Vector3.forward)))
-            {
-                return transform.right;
-            }
-            else
-            {
-                return transform.forward;
-            }
-        }
-        else if ((localNormal - Vector3.right).magnitude <= 0.1)
-        {
-            if (Mathf.Abs(Vector3.Dot(localVect, Vector3.forward)) < Mathf.Abs(Vector3.Dot(localVect, Vector3.up)))
-            {
-                return transform.forward;
-            }
-            else
-            {
-                return transform.up;
-            }
-        }
-
-        return Vector3.zero;
-    }
-
-    public float Direction(Vector3 axis, Vector3 start, Vector3 end)
-    {
-        return Vector3.SignedAngle(start, end, axis) / Mathf.Abs(Vector3.SignedAngle(start, end, axis));
     }
 
     public IEnumerator RotateLineAround(Vector3 axis, float height, float duration, float direction = 1.0f)
@@ -299,21 +246,7 @@ public class Rubickscube : MonoBehaviour
             actualTime += Time.time - lastTime;
             lastTime = Time.time;
 
-            for (int i = 0; i < visibleCubes.Count; i++)
-            {
-                float localHeight = Vector3.Dot(visibleCubes[i].transform.GetChild(0).position, axis);
-
-                if (Mathf.Abs(height - localHeight) < (1.0f / size) / 2.0f)
-                {
-                    Quaternion reset = Quaternion.Slerp(Start, End, lastFrame / duration);
-                    reset.x *= -1;
-                    reset.y *= -1;
-                    reset.z *= -1;
-
-                    visibleCubes[i].transform.rotation = reset * visibleCubes[i].transform.rotation;
-                    visibleCubes[i].transform.rotation = Quaternion.Slerp(Start, End, actualTime / duration) * visibleCubes[i].transform.rotation;
-                }
-            }
+            RotateLineAroundAxis(axis, height, actualTime / duration, lastFrame / duration, direction);
 
             DisplayVictory();
 
