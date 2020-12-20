@@ -3343,6 +3343,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mouseSpeed: 300
+  brakeSpeed: 0.01
+  inertia: 1
   rayCastLength: 1000
 --- !u!114 &2100868498
 MonoBehaviour:

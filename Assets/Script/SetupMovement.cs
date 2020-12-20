@@ -4,14 +4,22 @@ using UnityEngine;
 
 public class SetupMovement : MonoBehaviour
 {
-    [SerializeField] private float mouseSpeed = 1;
+    [SerializeField] private float mouseSpeed   = 1;
+    [SerializeField] private float brakeSpeed   = 0;
+    [SerializeField] private bool inertia       = false;
 
     Rubickscube rubick;
 
     Vector3 refPos;
     Vector3 refNormal;
-
     Vector3 lastLocation;
+
+    Plane plane;
+
+    float magnitude;
+    Vector3 axis;
+
+    bool rotating = false;
 
     [SerializeField] private float rayCastLength = 1000.0f;
 
@@ -22,7 +30,7 @@ public class SetupMovement : MonoBehaviour
     }
     void Update()
     {
-        if (Input.GetMouseButtonDown(1))
+        if (Input.GetMouseButtonDown(1) && !rotating)
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
@@ -31,35 +39,58 @@ public class SetupMovement : MonoBehaviour
             {
                 refPos = hit.point;
                 refNormal = hit.normal;
-                //Cursor.lockState = CursorLockMode.Locked;
+                plane.SetNormalAndPosition(refNormal, refPos);
+                rotating = true;
             }
         }
 
-        else if (Input.GetMouseButton(1))
+        else if (Input.GetMouseButton(1) && rotating)
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            /*Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
 
             if (Physics.Raycast(ray, out hit, rayCastLength) && !rubick.rotate)
+            {*/
+
+
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            float distance;
+
+            if (plane.Raycast(ray, out distance))
             {
-                if (lastLocation == hit.point)
+                Vector3 point = ray.GetPoint(distance);
+                /*if (lastLocation == point)
                 {
                     return;
-                }
+                }*/
 
-                Vector3 vect = hit.point - refPos;
+                Vector3 vect = point - refPos;
 
-                Vector3 axis = Vector3.Cross(refNormal, vect);
+                //print(vect.magnitude);
+
+                axis = Vector3.Cross(refNormal, vect);
 
                 transform.rotation = Quaternion.AngleAxis(vect.magnitude * mouseSpeed * Time.deltaTime, axis) * transform.rotation;
 
-                lastLocation = hit.point;
+                lastLocation = point;
+
+                magnitude = vect.magnitude;
             }
         }
 
         else
         {
-            //Cursor.lockState = CursorLockMode.None;
+            if (magnitude > 0 && inertia && !rubick.rotate)
+            {
+                transform.rotation = Quaternion.AngleAxis(magnitude * mouseSpeed * Time.deltaTime, axis) * transform.rotation;
+                magnitude -= brakeSpeed;
+            }
+
+            else
+            {
+                magnitude = 0;
+            }
+            rotating = false;
         }
     }
 
