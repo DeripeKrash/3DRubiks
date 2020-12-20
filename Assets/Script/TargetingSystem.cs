@@ -6,8 +6,8 @@ public class TargetingSystem : MonoBehaviour
 {
     Rubickscube rubick;
 
-    [SerializeField] private float rayCastLength = 1000.0f;
-    [SerializeField] private LayerMask layer;
+    [SerializeField] private float      rayCastLength = 1000.0f;
+    [SerializeField] private LayerMask  layer;
 
     public Vector3 rotationVector;
 
@@ -15,6 +15,7 @@ public class TargetingSystem : MonoBehaviour
     Vector3 refworld;
     Vector3 refNormal;
     Vector3 refScreenPos;
+    Plane   plane;
 
     bool animating = false;
     bool rotating = false;
@@ -44,26 +45,30 @@ public class TargetingSystem : MonoBehaviour
                 refNormal   = hit.normal;
                 //rotating    = true;
                 refScreenPos = Input.mousePosition;
+                plane.SetNormalAndPosition(refworld, refNormal);
             }
         }
 
         else if (Input.GetMouseButton(0) && !animating /*&& rotating*/)
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
+            //RaycastHit hit;
+            float distance = 0;
 
-            if (Physics.Raycast(ray, out hit, rayCastLength))
+            if (plane.Raycast(ray,out distance) /*Physics.Raycast(ray, out hit, rayCastLength)*/)
             {
-                Vector3 localPosition = transform.InverseTransformPoint(hit.point);
+                print("Point = " + ray.GetPoint(distance));
 
-                if ((refPos - localPosition).magnitude > 0.2f)
+                Vector3 localPosition = transform.InverseTransformPoint(ray.GetPoint(distance)/*hit.point*/);
+
+                if ((refPos - localPosition).magnitude > 0.3f)
                 {
 
-                    Vector3 axis = SortVector(refNormal, (refworld + (Input.mousePosition - refScreenPos)).normalized);
+                    //Vector3 axis = SortVector(refNormal, refworld + (Input.mousePosition - refScreenPos).normalized);
 
-                    //Vector3 axis = SortVector(hit.normal, (hit.point - refworld).normalized);
+                    Vector3 axis = SortVector(/*hit.normal*/refNormal, (ray.GetPoint(distance)/*hit.point*/ - refworld).normalized);
 
-                    if (Vector3.Angle(refNormal, hit.normal) != 0 && Vector3.Angle(refNormal, hit.normal) != 180) // Check if two different faces aren't checked
+                     if (Vector3.Angle(refNormal, /*hit.normal*/refNormal) != 0 && Vector3.Angle(refNormal, /*hit.normal*/refNormal) != 180) // Check if two different faces aren't checked
                     {
                         return;
                     }
@@ -71,7 +76,7 @@ public class TargetingSystem : MonoBehaviour
                     Vector3 localAxis = transform.InverseTransformPoint(axis);
 
                     float height = Vector3.Dot(localAxis, refPos);
-                    float direction = Direction(axis, refworld, hit.point);
+                    float direction = Direction(axis, refworld, ray.GetPoint(distance)/*hit.point*/);
 
 
                     //rubick.rotate = true;
