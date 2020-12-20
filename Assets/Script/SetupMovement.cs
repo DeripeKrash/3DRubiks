@@ -59,12 +59,12 @@ public class SetupMovement : MonoBehaviour
                 Vector3 vect = point - refPos;
                 axis = Vector3.Cross(refNormal, vect);
 
-                if (magnitude < vect.magnitude)
+                if (magnitude < vect.magnitude && vect.magnitude > 0)
                 {
                     transform.rotation = Quaternion.AngleAxis(vect.magnitude * mouseSpeed * Time.deltaTime, axis) * transform.rotation;
                 }
 
-                else if (magnitude > vect.magnitude)
+                else if (magnitude > vect.magnitude && vect.magnitude > 0)
                 {
                     transform.rotation = Quaternion.AngleAxis( -vect.magnitude * mouseSpeed * Time.deltaTime, axis) * transform.rotation;
                 }
