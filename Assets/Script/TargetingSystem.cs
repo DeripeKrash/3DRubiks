@@ -11,9 +11,9 @@ public class TargetingSystem : MonoBehaviour
 
     public Vector3 rotationVector;
 
-    Vector3 refPos;
+    Vector3 refPosLocal;
 
-    Vector3 refworld;
+    Vector3 refPosWorld;
     Vector3 refNormal;
     Vector3 axis;
 
@@ -36,7 +36,6 @@ public class TargetingSystem : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //Acquire Reference point on the cube and initialize everything needed when pressing left-click;
         if (Input.GetMouseButtonDown(0) && !animating)
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -44,45 +43,40 @@ public class TargetingSystem : MonoBehaviour
 
             if (Physics.Raycast(ray, out hit, rayCastLength))
             {
-                refPos      = transform.InverseTransformPoint(hit.point);
-                refworld    = hit.point;
+                refPosLocal      = transform.InverseTransformPoint(hit.point);
+                refPosWorld    = hit.point;
                 refNormal   = hit.normal;
-                plane.SetNormalAndPosition(refNormal , refworld);
+                plane.SetNormalAndPosition(refNormal , refPosWorld);
                 animating  = true;
             }
         }
 
-        //Rotate the Slice of the cube when selected;
         else if (Input.GetMouseButton(0) && animating)
         {
-            //Use ray to find the current mouse position on the plane;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             float distance;
 
             if (plane.Raycast(ray,out distance))
             {
-                //Current mouse position on the plane;
                 Vector3 point = ray.GetPoint(distance);
 
-                if ((oldFactor == 0 || oldFactor == 1) && (refPos - transform.InverseTransformPoint(point)).magnitude > 0.005f)
+                if ((oldFactor == 0 || oldFactor == 1) && (refPosLocal - transform.InverseTransformPoint(point)).magnitude > 0.005f)
                 {
-                    axis = SortVector(refNormal, (point - refworld).normalized);
+                    axis = SortVector(refNormal, (point - refPosWorld).normalized);
 
                     axisInit = true;
                 }
 
-                //Rotate the slice whith a new factor (factor [0,1]);
-                if (axisInit && (refPos - transform.InverseTransformPoint(point)).magnitude > 0.000001f)
+                if (axisInit && (refPosLocal - transform.InverseTransformPoint(point)).magnitude > 0.000001f)
                 {
                    Vector3 localAxis = transform.InverseTransformPoint(axis);
 
-                    height = Vector3.Dot(localAxis, refPos);
+                    height = Vector3.Dot(localAxis, refPosLocal);
 
                     float oldDirection = direction;
 
-                    direction = Direction(axis, refworld, point);
+                    direction = Direction(axis, refPosWorld, point);
 
-                    //If the direction is not the same we reset the rotation; (Factor < 0 but factor need to be [0,1]);
                     if (direction != oldDirection)
                     {
                         rubick.RotateLineAroundAxis(axis, height, 0, oldFactor, oldDirection);
@@ -90,9 +84,8 @@ public class TargetingSystem : MonoBehaviour
                     }
 
                     Vector3 dir = Vector3.Cross(refNormal, axis);
-                    factor = Mathf.Abs(Vector3.Dot(dir, (point - refworld)));
+                    factor = Mathf.Abs(Vector3.Dot(dir, (point - refPosWorld)));
 
-                    //Factor [0,1];
                     if (factor > 1)
                     {
                         factor = 1;
@@ -105,8 +98,6 @@ public class TargetingSystem : MonoBehaviour
                 }
             }
         }
-
-        //Set the slice of the cube to the right face when realeasing the key;
         else if (Input.GetMouseButtonUp(0))
         {
             if (oldFactor != 0 && oldFactor != 1)
@@ -132,24 +123,23 @@ public class TargetingSystem : MonoBehaviour
             }
 
             animating = false;
-            //rotating = false;
             rubick.rotate = false;
         }
     }
 
-    //Find the Rotation Axis by finding wich face of the cube we selected;
-    Vector3 SortVector(Vector3 normal, Vector3 vect)
+    //Find the Rotation Axis by finding which face of the cube we selected and getting the vector that is the closest to the direction selected
+    Vector3 SortVector(Vector3 normal, Vector3 direction)
     {
         Vector3 localNormal = transform.InverseTransformPoint(normal);
-        Vector3 localVect = transform.InverseTransformPoint(vect);
+        Vector3 localDirection = transform.InverseTransformPoint(direction);
 
         localNormal.x = Mathf.Abs(localNormal.x);
         localNormal.y = Mathf.Abs(localNormal.y);
         localNormal.z = Mathf.Abs(localNormal.z);
 
-        if ((localNormal - Vector3.forward).magnitude <= 0.1)
+        if ((localNormal - Vector3.forward).magnitude <= 0.01f)
         {
-            if (Mathf.Abs(Vector3.Dot(localVect, Vector3.up)) < Mathf.Abs(Vector3.Dot(localVect, Vector3.right)))
+            if (Mathf.Abs(Vector3.Dot(localDirection, Vector3.up)) < Mathf.Abs(Vector3.Dot(localDirection, Vector3.right)))
             {
                 return transform.up;
             }
@@ -158,9 +148,9 @@ public class TargetingSystem : MonoBehaviour
                 return transform.right;
             }
         }
-        else if ((localNormal - Vector3.up).magnitude <= 0.1)
+        else if ((localNormal - Vector3.up).magnitude <= 0.01f)
         {
-            if (Mathf.Abs(Vector3.Dot(localVect, Vector3.right)) < Mathf.Abs(Vector3.Dot(localVect, Vector3.forward)))
+            if (Mathf.Abs(Vector3.Dot(localDirection, Vector3.right)) < Mathf.Abs(Vector3.Dot(localDirection, Vector3.forward)))
             {
                 return transform.right;
             }
@@ -169,9 +159,9 @@ public class TargetingSystem : MonoBehaviour
                 return transform.forward;
             }
         }
-        else if ((localNormal - Vector3.right).magnitude <= 0.1)
+        else if ((localNormal - Vector3.right).magnitude <= 0.01f)
         {
-            if (Mathf.Abs(Vector3.Dot(localVect, Vector3.forward)) < Mathf.Abs(Vector3.Dot(localVect, Vector3.up)))
+            if (Mathf.Abs(Vector3.Dot(localDirection, Vector3.forward)) < Mathf.Abs(Vector3.Dot(localDirection, Vector3.up)))
             {
                 return transform.forward;
             }

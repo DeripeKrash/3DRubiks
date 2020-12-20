@@ -19,6 +19,8 @@ public class SetupMovement : MonoBehaviour
     float magnitude;
     bool rotating = false;
 
+    Vector3 lastPos;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -52,7 +54,15 @@ public class SetupMovement : MonoBehaviour
             if (plane.Raycast(ray, out distance))
             {
                 Vector3 point       = ray.GetPoint(distance);
+
+                if (lastPos == point)
+                {
+                    magnitude = 0;
+                    return;
+                }
+
                 Vector3 vect        = point - refPos;
+                lastPos             = point;
                 axis                = Vector3.Cross(refNormal, vect);
                 transform.rotation  = Quaternion.AngleAxis(vect.magnitude * mouseSpeed * Time.deltaTime, axis) * transform.rotation;
                 magnitude           = vect.magnitude;

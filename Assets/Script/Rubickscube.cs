@@ -128,7 +128,7 @@ public class Rubickscube : MonoBehaviour
         }
     }
 
-    public void ReLaunch() // Clear All the lists and recreate the cube
+    public void ReLaunch() // Clear all the lists and recreate the cube
     {
         for (int i = 0; i < visibleCubes.Count; i++)
         {
@@ -265,6 +265,19 @@ public class Rubickscube : MonoBehaviour
         rotate = false;
 
         yield break;
+    }
+
+    void ShowMovingFace(Vector3 axis, float height, bool show)
+    {
+        for (int i = 0; i < visibleCubes.Count; i++)
+        {
+            float localHeight = Vector3.Dot(visibleCubes[i].transform.GetChild(0).position, axis);
+
+            if (Mathf.Abs(height - localHeight) < (1.0f / size) * 2.0f)
+            {
+                visibleCubes[i].Optimize(show);
+            }
+        }
     }
 
     void DisplayVictory()
