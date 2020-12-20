@@ -227,7 +227,7 @@ public class Rubickscube : MonoBehaviour
         DisplayVictory();
     }
 
-    public IEnumerator RotateLineAround(Vector3 axis, float height, float duration, float direction = 1.0f)
+    public IEnumerator RotateLineAround(Vector3 axis, float height, float duration, float direction = 1.0f, float startFactor = 0.0f)
     {
         if (rotate)
         {
@@ -240,16 +240,13 @@ public class Rubickscube : MonoBehaviour
         float lastFrame;
         float lastTime   = Time.time;
 
-        //Quaternion Start = transform.rotation;
-        //Quaternion End = Quaternion.AngleAxis(90 * direction, axis) * Start;
-
-        while (duration - actualTime > 0)
+        while (duration * (1 - startFactor) - actualTime > 0)
         {
             lastFrame = actualTime;
             actualTime += Time.time - lastTime;
             lastTime = Time.time;
 
-            RotateLineAroundAxis(axis, height, actualTime / duration, lastFrame / duration, direction);
+            RotateLineAroundAxis(axis, height, (actualTime / duration) + startFactor, (lastFrame / duration) + startFactor, direction);
 
             yield return new WaitForEndOfFrame();
 

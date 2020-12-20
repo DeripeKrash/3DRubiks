@@ -23,6 +23,8 @@ public class TargetingSystem : MonoBehaviour
     float oldFactor = 0;
     float factor    = 1;
 
+    bool axisInit = false;
+
     bool animating = false;
 
     void Start()
@@ -56,13 +58,16 @@ public class TargetingSystem : MonoBehaviour
             {
                 Vector3 point = ray.GetPoint(distance);
 
-                if ((refPos - transform.InverseTransformPoint(point)).magnitude > 0.1f)
+                if ((oldFactor == 0 || oldFactor == 1) && (refPos - transform.InverseTransformPoint(point)).magnitude > 0.1f)
                 {
-                    if (oldFactor == 0 || oldFactor == 1)
-                    {
-                        axis = SortVector(refNormal, (point - refworld).normalized);
-                    }
-                    Vector3 localAxis = transform.InverseTransformPoint(axis);
+                    axis = SortVector(refNormal, (point - refworld).normalized);
+
+                    axisInit = true;
+                }
+
+                if (axisInit && (refPos - transform.InverseTransformPoint(point)).magnitude > 0.000001f)
+                {
+                   Vector3 localAxis = transform.InverseTransformPoint(axis);
 
                     height = Vector3.Dot(localAxis, refPos);
 
@@ -76,9 +81,8 @@ public class TargetingSystem : MonoBehaviour
                         oldFactor = 0;
                     }
 
-                    factor = (point - refPos).magnitude;
-
-                    print(factor);
+                    Vector3 dir = Vector3.Cross(refNormal, axis);
+                    factor = Mathf.Abs(Vector3.Dot(dir, (point - refworld)));
 
                     if (factor > 1)
                     {
@@ -101,12 +105,14 @@ public class TargetingSystem : MonoBehaviour
                 {
                     rubick.RotateLineAroundAxis(axis, height, 1, oldFactor, direction);
                     oldFactor = 0;
+                    axisInit = false;
                 }
 
                 else
                 {
                     rubick.RotateLineAroundAxis(axis, height, 0, oldFactor, direction);
                     oldFactor = 0;
+                    axisInit = false;
                 }
             }
 
