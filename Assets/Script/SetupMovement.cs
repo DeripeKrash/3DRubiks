@@ -61,7 +61,9 @@ public class SetupMovement : MonoBehaviour
                     velocity = vect.magnitude;
                     axis = Vector3.Cross(refNormal, vect);
                     transform.rotation = Quaternion.AngleAxis(velocity * mouseSpeed * Time.deltaTime, axis) * transform.rotation;
-                
+
+                    Debug.Log("Movement : Rotation Axis" + axis);
+
                 }
                 else
                 {

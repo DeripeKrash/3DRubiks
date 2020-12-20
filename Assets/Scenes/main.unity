@@ -3739,7 +3739,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba3cc149724289c4c9beb5d6ecbb59d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mouseSpeed: 300
+  mouseSpeed: 200
   brakeSpeed: 0.01
   inertia: 1
   rayCastLength: 1000
