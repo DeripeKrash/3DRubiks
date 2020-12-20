@@ -13,17 +13,13 @@ public class SetupMovement : MonoBehaviour
 
     Rubickscube rubick;
 
-    Vector3 refPos;
     Vector3 refNormal;
+    Vector3 lastPos;
     Vector3 axis;
-    Vector3 oldLocation;
 
     Plane plane;
-    float magnitude;
     float velocity;
     bool rotating = false;
-
-    Vector3 lastPos;
 
     // Start is called before the first frame update
     void Start()
@@ -42,12 +38,10 @@ public class SetupMovement : MonoBehaviour
 
             if (Physics.Raycast(ray, out hit, rayCastLength))
             {
-                refPos              = hit.point;
                 refNormal           = hit.normal;
-                plane.SetNormalAndPosition(refNormal, refPos);
+                plane.SetNormalAndPosition(refNormal, hit.point);
                 rotating            = true;
-                oldLocation         = refPos;
-                velocity            = 0;
+                lastPos             = hit.point;
             }
         }
 
@@ -60,26 +54,21 @@ public class SetupMovement : MonoBehaviour
             if (plane.Raycast(ray, out distance))
             {
                 Vector3 point = ray.GetPoint(distance);
-                Vector3 vect = point - refPos;
-                axis = Vector3.Cross(refNormal, vect);
-
-                if (magnitude < vect.magnitude && vect.magnitude > 0)
+                
+                if (point != lastPos)
                 {
-                    transform.rotation = Quaternion.AngleAxis(vect.magnitude * mouseSpeed * Time.deltaTime, axis) * transform.rotation;
+                    Vector3 vect = (point - lastPos).normalized;
+                    velocity = vect.magnitude;
+                    axis = Vector3.Cross(refNormal, vect);
+                    transform.rotation = Quaternion.AngleAxis(velocity * mouseSpeed * Time.deltaTime, axis) * transform.rotation;
+                
                 }
-                else if (magnitude > vect.magnitude && vect.magnitude > 0)
-                {
-                    transform.rotation = Quaternion.AngleAxis( -vect.magnitude * mouseSpeed * Time.deltaTime, axis) * transform.rotation;
-                }
-
-
                 else
                 {
                     velocity = 0;
                 }
 
-                oldLocation         = point;
-                velocity            = vect.magnitude;
+                lastPos = point;
             }
         }
 
@@ -89,14 +78,13 @@ public class SetupMovement : MonoBehaviour
             if (velocity > 0 && inertia && !rubick.rotate)
             {
                 transform.rotation  = Quaternion.AngleAxis(velocity * mouseSpeed * Time.deltaTime, axis) * transform.rotation;
-                velocity -= brakeSpeed;
+                velocity           -= brakeSpeed;
             }
             else
             {
                 velocity = 0;
             }
 
-            magnitude = 0;
             rotating = false;
         }
 

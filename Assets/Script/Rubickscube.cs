@@ -178,6 +178,11 @@ public class Rubickscube : MonoBehaviour
         }
     }
 
+    public void QuitGame()// Used in UI
+    {
+        Application.Quit();
+    }
+
     public void RotateLineAroundAxis(Vector3 axis, float height, float factor, float oldFactor, float direction = 1.0f) // Rotate a line of 
     {
         Quaternion Start = transform.rotation;
