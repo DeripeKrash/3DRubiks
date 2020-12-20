@@ -14,6 +14,7 @@ public class SetupMovement : MonoBehaviour
     Vector3 refPos;
     Vector3 refNormal;
     Vector3 axis;
+    Vector3 oldLocation;
 
     Plane plane;
     float magnitude;
@@ -38,10 +39,11 @@ public class SetupMovement : MonoBehaviour
 
             if (Physics.Raycast(ray, out hit, rayCastLength))
             {
-                refPos      = hit.point;
-                refNormal   = hit.normal;
+                refPos              = hit.point;
+                refNormal           = hit.normal;
                 plane.SetNormalAndPosition(refNormal, refPos);
-                rotating    = true;
+                rotating            = true;
+                oldLocation     = refPos;
             }
         }
 
@@ -53,19 +55,18 @@ public class SetupMovement : MonoBehaviour
 
             if (plane.Raycast(ray, out distance))
             {
-                Vector3 point       = ray.GetPoint(distance);
+                Vector3 point = ray.GetPoint(distance);
+                Vector3 vect = point - refPos;
+                axis = Vector3.Cross(refNormal, vect);
+                magnitude = vect.magnitude;
 
-                if (lastPos == point)
+                if (oldLocation == point )
                 {
                     magnitude = 0;
-                    return;
                 }
 
-                Vector3 vect        = point - refPos;
-                lastPos             = point;
-                axis                = Vector3.Cross(refNormal, vect);
-                transform.rotation  = Quaternion.AngleAxis(vect.magnitude * mouseSpeed * Time.deltaTime, axis) * transform.rotation;
-                magnitude           = vect.magnitude;
+                transform.rotation  = Quaternion.AngleAxis(magnitude * mouseSpeed * Time.deltaTime, axis) * transform.rotation;
+                oldLocation         = point; 
             }
         }
 

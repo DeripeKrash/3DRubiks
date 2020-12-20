@@ -21,6 +21,8 @@ public class VisibleCube : MonoBehaviour
                     rend.material = mat;
                 }
 
+                transform.GetChild(0).GetChild(i).gameObject.SetActive(true);
+
                 listFaces.Add(transform.GetChild(0).GetChild(i));
                 list.Add(transform.GetChild(0).GetChild(i));
                 return;

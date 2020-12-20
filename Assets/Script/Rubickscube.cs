@@ -13,7 +13,6 @@ public class Rubickscube : MonoBehaviour
     /* Cube Option */
     [SerializeField] [Range(2, 10)] public uint size = 3;
     [SerializeField] public uint shuffleNumber = 0;
-    [SerializeField] bool optimizedDisplay = true;
 
     [SerializeField] Material Color1;
     [SerializeField] Material Color2;
@@ -41,8 +40,6 @@ public class Rubickscube : MonoBehaviour
     void Start()
     {
         Load();
-        //Launch();       
-        //Shuffle();
     }
 
     public void SetSize(System.Single _size) // used for the UI
@@ -108,23 +105,6 @@ public class Rubickscube : MonoBehaviour
                     }
                 }
             }
-        }
-
-        SetVisibiltyColorlessFaces();
-
-    }
-
-    public void SwitchVisibiltyColorlessFaces()
-    {
-        optimizedDisplay = !optimizedDisplay;
-        SetVisibiltyColorlessFaces();
-    }
-
-    void SetVisibiltyColorlessFaces()
-    {
-        for (int i = 0; i < visibleCubes.Count; i++)
-        {
-            visibleCubes[i].Optimize(optimizedDisplay);
         }
     }
 
@@ -250,6 +230,8 @@ public class Rubickscube : MonoBehaviour
         float lastFrame;
         float lastTime   = Time.time;
 
+        ShowMovingFace(axis, height, true);
+
         while (duration * (1 - startFactor) - actualTime > 0)
         {
             lastFrame = actualTime;
@@ -262,20 +244,21 @@ public class Rubickscube : MonoBehaviour
 
         }
 
+        ShowMovingFace(axis, height, false);
         rotate = false;
 
         yield break;
     }
 
-    void ShowMovingFace(Vector3 axis, float height, bool show)
-    {
+    public void ShowMovingFace(Vector3 axis, float height, bool show) // Make the hidden face of the line visible or invisible
+    {                                                                 // Used when rotating a line
         for (int i = 0; i < visibleCubes.Count; i++)
         {
             float localHeight = Vector3.Dot(visibleCubes[i].transform.GetChild(0).position, axis);
 
             if (Mathf.Abs(height - localHeight) < (1.0f / size) * 2.0f)
             {
-                visibleCubes[i].Optimize(show);
+                visibleCubes[i].Optimize(!show);
             }
         }
     }
@@ -327,7 +310,7 @@ public class Rubickscube : MonoBehaviour
     }
 
 
-    // Save Functions
+    /* ==== Save Functions ==== */ 
 
     public void OnDestroy() // Save the RubicksCube at the end of the game
     {
