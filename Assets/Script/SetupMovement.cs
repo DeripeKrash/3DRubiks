@@ -33,6 +33,7 @@ public class SetupMovement : MonoBehaviour
                 refNormal = hit.normal;
             }
         }
+
         else if (Input.GetMouseButton(1))
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);

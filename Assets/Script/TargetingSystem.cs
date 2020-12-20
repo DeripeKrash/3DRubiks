@@ -14,8 +14,10 @@ public class TargetingSystem : MonoBehaviour
     Vector3 refPos;
     Vector3 refworld;
     Vector3 refNormal;
+    Vector3 refScreenPos;
 
     bool animating = false;
+    bool rotating = false;
 
     void Start()
     {
@@ -30,19 +32,22 @@ public class TargetingSystem : MonoBehaviour
             return;
         }
 
-        if (Input.GetMouseButtonDown(0) && !animating)
+        if (Input.GetMouseButtonDown(0) && !animating/* && !rotating*/)
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
 
             if (Physics.Raycast(ray, out hit, rayCastLength))
             {
-                refPos = transform.InverseTransformPoint(hit.point);
-                refworld = hit.point;
-                refNormal = hit.normal;
+                refPos      = transform.InverseTransformPoint(hit.point);
+                refworld    = hit.point;
+                refNormal   = hit.normal;
+                //rotating    = true;
+                //refScreenPos = Input.mousePosition;
             }
         }
-        else if (Input.GetMouseButton(0) && !animating)
+
+        else if (Input.GetMouseButton(0) && !animating /*&& rotating*/)
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
@@ -53,7 +58,10 @@ public class TargetingSystem : MonoBehaviour
 
                 if ((refPos - localPosition).magnitude > 0.2f)
                 {
-                    Vector3 axis = SortVector(hit.normal, (hit.point - refworld).normalized);
+
+                    Vector3 axis = SortVector(refNormal, (refworld + (Input.mousePosition - refScreenPos)).normalized);
+
+                    //Vector3 axis = SortVector(hit.normal, (hit.point - refworld).normalized);
 
                     if (Vector3.Angle(refNormal, hit.normal) != 0 && Vector3.Angle(refNormal, hit.normal) != 180) // Check if two different faces aren't checked
                     {
@@ -65,8 +73,11 @@ public class TargetingSystem : MonoBehaviour
                     float height = Vector3.Dot(localAxis, refPos);
                     float direction = Direction(axis, refworld, hit.point);
 
+
+                    //rubick.rotate = true;
+                    //rubick.RotateLineAroundAxis(axis,height, 0, 1,direction);
                     StartCoroutine(rubick.RotateLineAround(axis, height, 0.5f, direction));
-                    rubick.rotate = true;
+                    //rubick.rotate = false;
 
                     //rubick.RotateLineAroundAxis();
                 }
@@ -75,9 +86,11 @@ public class TargetingSystem : MonoBehaviour
         else if (Input.GetMouseButtonUp(0))
         {
             animating = false;
+            //rotating = false;
         }
     }
 
+    //Find the Rotation Axis by finding wich face of the cube we selected;
     public Vector3 SortVector(Vector3 normal, Vector3 vect)
     {
         Vector3 localNormal = transform.InverseTransformPoint(normal);
