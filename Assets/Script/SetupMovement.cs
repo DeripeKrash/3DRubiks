@@ -23,11 +23,12 @@ public class SetupMovement : MonoBehaviour
     void Start()
     {
         rubick = GetComponent<Rubickscube>();
-
         Camera.main.transform.LookAt(transform);
     }
+
     void Update()
     {
+        //Acquire reference point on the cube and initialize all parameter needed for the rotation when pressing right-click;
         if (Input.GetMouseButtonDown(1) && !rotating)
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -42,6 +43,7 @@ public class SetupMovement : MonoBehaviour
             }
         }
 
+        //Rotate the cube;
         else if (Input.GetMouseButton(1) && rotating)
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -57,6 +59,7 @@ public class SetupMovement : MonoBehaviour
             }
         }
 
+        //Stop rotating the cube or apply inertia when realeasing the key;
         else
         {
             if (magnitude > 0 && inertia && !rubick.rotate)
@@ -73,10 +76,16 @@ public class SetupMovement : MonoBehaviour
             rotating = false;
         }
 
+        //ZoomIn/ZoomOut with mouse scrolling;
         if (Input.mouseScrollDelta.magnitude != 0)
         {
             Camera.main.transform.Translate(Camera.main.transform.forward * Input.mouseScrollDelta.y);
         }
     }
 
+
+    public void SwitchInertia()
+    {
+        inertia = !inertia;
+    }
 }

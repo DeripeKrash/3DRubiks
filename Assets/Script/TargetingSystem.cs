@@ -35,6 +35,7 @@ public class TargetingSystem : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //Acquire Reference point on the cube and initialize everything needed when pressing left-click;
         if (Input.GetMouseButtonDown(0) && !animating)
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -50,15 +51,19 @@ public class TargetingSystem : MonoBehaviour
             }
         }
 
+        //Rotate the Slice of the cube when selected;
         else if (Input.GetMouseButton(0) && animating)
         {
+            //Use ray to find the current mouse position on the plane;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             float distance;
 
             if (plane.Raycast(ray,out distance))
             {
+                //Current mouse position on the plane;
                 Vector3 point = ray.GetPoint(distance);
 
+                //Check if the slice is rotating;
                 if ((oldFactor == 0 || oldFactor == 1) && (refPos - transform.InverseTransformPoint(point)).magnitude > 0.1f)
                 {
                     axis = SortVector(refNormal, (point - refworld).normalized);
@@ -66,6 +71,7 @@ public class TargetingSystem : MonoBehaviour
                     axisInit = true;
                 }
 
+                //Rotate the slice whith a new factor (factor [0,1]);
                 if (axisInit && (refPos - transform.InverseTransformPoint(point)).magnitude > 0.000001f)
                 {
                    Vector3 localAxis = transform.InverseTransformPoint(axis);
@@ -76,6 +82,7 @@ public class TargetingSystem : MonoBehaviour
 
                     direction = Direction(axis, refworld, point);
 
+                    //If the direction is not the same we reset the rotation; (Factor < 0 but factor need to be [0,1]);
                     if (direction != oldDirection)
                     {
                         rubick.RotateLineAroundAxis(axis, height, 0, oldFactor, oldDirection);
@@ -85,6 +92,7 @@ public class TargetingSystem : MonoBehaviour
                     Vector3 dir = Vector3.Cross(refNormal, axis);
                     factor = Mathf.Abs(Vector3.Dot(dir, (point - refworld)));
 
+                    //Factor [0,1];
                     if (factor > 1)
                     {
                         factor = 1;
@@ -94,10 +102,11 @@ public class TargetingSystem : MonoBehaviour
                     rubick.RotateLineAroundAxis(axis,height, factor, oldFactor,direction);
 
                     oldFactor = factor;
-                    //StartCoroutine(rubick.RotateLineAround(axis, height, 0.5f, direction));
                 }
             }
         }
+
+        //Set the slice of the cube to the right face when realeasing the key;
         else if (Input.GetMouseButtonUp(0))
         {
             if (oldFactor != 0 && oldFactor != 1)
