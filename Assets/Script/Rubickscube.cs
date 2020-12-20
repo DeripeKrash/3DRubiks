@@ -240,9 +240,6 @@ public class Rubickscube : MonoBehaviour
         float lastFrame;
         float lastTime   = Time.time;
 
-        //Quaternion Start = transform.rotation;
-        //Quaternion End = Quaternion.AngleAxis(90 * direction, axis) * Start;
-
         while (duration - actualTime > 0)
         {
             lastFrame = actualTime;
@@ -307,11 +304,13 @@ public class Rubickscube : MonoBehaviour
     }
 
 
+    // Save Function
 
     public void Save()
     {
         BinaryFormatter formatter = new BinaryFormatter();
         string path = Application.persistentDataPath + "/RubicksCubeWilliamDenis.save";
+        Debug.Log(path);
         FileStream stream = new FileStream(path, FileMode.Create);
 
 
