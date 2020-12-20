@@ -188,6 +188,9 @@ public class Rubickscube : MonoBehaviour
         Quaternion Start = transform.rotation;
         Quaternion End = Quaternion.AngleAxis(90 * direction, axis) * Start;
 
+        Debug.Log("Rotate Line : Rotation Axis = " + axis);
+        Debug.Log("Rotate Line : Line Height = " + height);
+
         for (int i = 0; i < visibleCubes.Count; i++)
         {
             float localHeight = Vector3.Dot(visibleCubes[i].transform.GetChild(0).position, axis);
@@ -223,7 +226,7 @@ public class Rubickscube : MonoBehaviour
         DisplayVictory(); // Check if the RubicksCube is complete
     }
 
-    public IEnumerator RotateLineAround(Vector3 axis, float height, float duration, float direction = 1.0f, float startFactor = 0.0f)
+    public IEnumerator RotateLineAroundAxisTime(Vector3 axis, float height, float duration, float direction = 1.0f, float startFactor = 0.0f)
     {
         if (rotate)
         {
@@ -354,6 +357,8 @@ public class Rubickscube : MonoBehaviour
         {
             Restart();
         }
+
+        DisplayVictory();
     }
 
 }
