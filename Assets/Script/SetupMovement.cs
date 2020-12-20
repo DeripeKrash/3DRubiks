@@ -8,6 +8,8 @@ public class SetupMovement : MonoBehaviour
     [SerializeField] private float brakeSpeed       = 0;
     [SerializeField] private bool inertia           = false;
     [SerializeField] private float rayCastLength    = 1000.0f;
+    [SerializeField] private float zoomMin          = 0;
+    [SerializeField] private float zoomMax          = 1000.0f;
 
     Rubickscube rubick;
 
@@ -32,7 +34,7 @@ public class SetupMovement : MonoBehaviour
     void Update()
     {
         //Acquire reference point on the cube and initialize all parameter needed for the rotation when pressing right-click;
-        if (Input.GetMouseButtonDown(1) && !rotating)
+        if (Input.GetMouseButtonDown(1) && !rotating && !rubick.rotate)
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
@@ -48,7 +50,7 @@ public class SetupMovement : MonoBehaviour
         }
 
         //Rotate the cube;
-        else if (Input.GetMouseButton(1) && rotating)
+        else if (Input.GetMouseButton(1) && rotating && !rubick.rotate)
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             float distance;
@@ -58,15 +60,26 @@ public class SetupMovement : MonoBehaviour
                 Vector3 point = ray.GetPoint(distance);
                 Vector3 vect = point - refPos;
                 axis = Vector3.Cross(refNormal, vect);
-                magnitude = vect.magnitude;
 
-                if (oldLocation == point )
+                if (magnitude < vect.magnitude && vect.magnitude > 0)
+                {
+                    transform.rotation = Quaternion.AngleAxis(vect.magnitude * mouseSpeed * Time.deltaTime, axis) * transform.rotation;
+                }
+
+                else if (magnitude > vect.magnitude && vect.magnitude > 0)
+                {
+                    transform.rotation = Quaternion.AngleAxis( -vect.magnitude * mouseSpeed * Time.deltaTime, axis) * transform.rotation;
+                }
+
+
+                else
                 {
                     magnitude = 0;
                 }
 
-                transform.rotation  = Quaternion.AngleAxis(magnitude * mouseSpeed * Time.deltaTime, axis) * transform.rotation;
-                oldLocation         = point; 
+                //transform.rotation  = Quaternion.AngleAxis(magnitude * mouseSpeed * Time.deltaTime, axis) * transform.rotation;
+                oldLocation         = point;
+                magnitude = vect.magnitude;
             }
         }
 
@@ -91,6 +104,12 @@ public class SetupMovement : MonoBehaviour
         if (Input.mouseScrollDelta.magnitude != 0)
         {
             Camera.main.transform.Translate(Camera.main.transform.forward * -Input.mouseScrollDelta.y);
+
+            print((transform.position - Camera.main.transform.position).magnitude);
+            if ( (transform.position - Camera.main.transform.position).magnitude < zoomMin || (transform.position - Camera.main.transform.position).magnitude > zoomMax)
+            {
+                Camera.main.transform.Translate(Camera.main.transform.forward * Input.mouseScrollDelta.y);
+            }
         }
     }
 
