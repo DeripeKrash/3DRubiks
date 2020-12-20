@@ -47,10 +47,11 @@ public class TargetingSystem : MonoBehaviour
                 refworld    = hit.point;
                 refNormal   = hit.normal;
                 plane.SetNormalAndPosition(refNormal , refworld);
+                animating  = true;
             }
         }
 
-        else if (Input.GetMouseButton(0) && !animating)
+        else if (Input.GetMouseButton(0) && animating)
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             float distance;

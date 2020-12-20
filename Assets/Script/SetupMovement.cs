@@ -31,6 +31,7 @@ public class SetupMovement : MonoBehaviour
             {
                 refPos = hit.point;
                 refNormal = hit.normal;
+                //Cursor.lockState = CursorLockMode.Locked;
             }
         }
 
@@ -54,6 +55,11 @@ public class SetupMovement : MonoBehaviour
 
                 lastLocation = hit.point;
             }
+        }
+
+        else
+        {
+            //Cursor.lockState = CursorLockMode.None;
         }
     }
 
