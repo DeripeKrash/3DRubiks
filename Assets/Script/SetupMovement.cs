@@ -16,10 +16,10 @@ public class SetupMovement : MonoBehaviour
     Vector3 refPos;
     Vector3 refNormal;
     Vector3 axis;
-    Vector3 oldLocation;
 
     Plane plane;
     float magnitude;
+    float velocity;
     bool rotating = false;
 
     // Start is called before the first frame update
@@ -43,7 +43,6 @@ public class SetupMovement : MonoBehaviour
                 refNormal           = hit.normal;
                 plane.SetNormalAndPosition(refNormal, refPos);
                 rotating            = true;
-                oldLocation     = refPos;
             }
         }
 
@@ -59,40 +58,39 @@ public class SetupMovement : MonoBehaviour
                 Vector3 vect = point - refPos;
                 axis = Vector3.Cross(refNormal, vect);
 
-                if (magnitude < vect.magnitude && vect.magnitude > 0)
+                velocity = vect.magnitude;
+
+                if (magnitude < vect.magnitude)
                 {
-                    transform.rotation = Quaternion.AngleAxis(vect.magnitude * mouseSpeed * Time.deltaTime, axis) * transform.rotation;
+                    transform.rotation = Quaternion.AngleAxis(velocity * mouseSpeed * Time.deltaTime, axis) * transform.rotation;
+                    magnitude = vect.magnitude;
                 }
 
-                else if (magnitude > vect.magnitude && vect.magnitude > 0)
+                else if (magnitude > vect.magnitude)
                 {
-                    transform.rotation = Quaternion.AngleAxis( -vect.magnitude * mouseSpeed * Time.deltaTime, axis) * transform.rotation;
+                    transform.rotation = Quaternion.AngleAxis(-velocity * mouseSpeed * Time.deltaTime, axis) * transform.rotation;
+                    magnitude = vect.magnitude;
                 }
-
 
                 else
                 {
-                    magnitude = 0;
+                    velocity = 0;
                 }
-
-                //transform.rotation  = Quaternion.AngleAxis(magnitude * mouseSpeed * Time.deltaTime, axis) * transform.rotation;
-                oldLocation         = point;
-                magnitude = vect.magnitude;
             }
         }
 
         //Stop rotating the cube or apply inertia when realeasing the key;
         else
         {
-            if (magnitude > 0 && inertia && !rubick.rotate)
+            if (velocity > 0 && inertia && !rubick.rotate)
             {
-                transform.rotation  = Quaternion.AngleAxis(magnitude * mouseSpeed * Time.deltaTime, axis) * transform.rotation;
-                magnitude           -= brakeSpeed;
+                transform.rotation  = Quaternion.AngleAxis(velocity * mouseSpeed * Time.deltaTime, axis) * transform.rotation;
+                velocity           -= brakeSpeed;
             }
 
             else
             {
-                magnitude = 0;
+                velocity = 0;
             }
 
             rotating = false;
