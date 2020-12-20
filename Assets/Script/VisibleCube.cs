@@ -2,23 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public struct Face
-{
-    public uint color;
-    public Transform trsFace;
-
-    public Face(uint _color, Transform _trsFace) 
-    {
-        color = _color;
-        trsFace = _trsFace;
-    }
-};
-
 public class VisibleCube : MonoBehaviour
 {
+    // List used to show or hide the face that don't have a color
     List<Transform> listFaces = new List<Transform>();
 
-    public void AddFace(List<Transform> list, Vector3 FaceVector, Material mat, uint color) // The face of the cube that have the 
+    public void AddFace(List<Transform> list, Vector3 FaceVector, Material mat) // The face of the cube that have the same normal as FaceVector have their color changed
     {
         for (int i = 0; i < transform.GetChild(0).childCount; i++)
         {
@@ -32,18 +21,15 @@ public class VisibleCube : MonoBehaviour
                     rend.material = mat;
                 }
 
-                Face newFace = new Face();
-                newFace.trsFace = transform.GetChild(0).GetChild(i);
-                newFace.color = color;
-
                 listFaces.Add(transform.GetChild(0).GetChild(i));
                 list.Add(transform.GetChild(0).GetChild(i));
+                return;
 
             }
         }
     }
 
-    public void Optimize(bool active = true)
+    public void Optimize(bool active = true) // Show/Hide the Hidden faces
     {
         for (int i = 0; i < transform.GetChild(0).childCount; i++)
         {
@@ -57,8 +43,7 @@ public class VisibleCube : MonoBehaviour
             }
             if (clear)
             {
-                Destroy(transform.GetChild(0).GetChild(i).gameObject);
-                //transform.GetChild(0).GetChild(i).gameObject.SetActive(!active);
+                transform.GetChild(0).GetChild(i).gameObject.SetActive(!active);
             }
         }
     }

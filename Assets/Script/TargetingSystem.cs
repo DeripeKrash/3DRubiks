@@ -60,7 +60,7 @@ public class TargetingSystem : MonoBehaviour
             {
                 Vector3 point = ray.GetPoint(distance);
 
-                if ((oldFactor == 0 || oldFactor == 1) && (refPos - transform.InverseTransformPoint(point)).magnitude > 0.1f)
+                if ((oldFactor == 0 || oldFactor == 1) && (refPos - transform.InverseTransformPoint(point)).magnitude > 0.005f)
                 {
                     axis = SortVector(refNormal, (point - refworld).normalized);
 

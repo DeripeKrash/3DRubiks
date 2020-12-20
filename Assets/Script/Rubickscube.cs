@@ -8,11 +8,12 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 public class Rubickscube : MonoBehaviour
 {
+    [SerializeField] VisibleCube referenceCube;
+
+    /* Cube Option */
     [SerializeField] [Range(2, 10)] public uint size = 3;
-
-    [SerializeField] VisibleCube refCube;
-
-    [SerializeField] public List<VisibleCube> visibleCubes;
+    [SerializeField] public uint shuffleNumber = 0;
+    [SerializeField] bool optimizedDisplay = true;
 
     [SerializeField] Material Color1;
     [SerializeField] Material Color2;
@@ -21,6 +22,11 @@ public class Rubickscube : MonoBehaviour
     [SerializeField] Material Color5;
     [SerializeField] Material Color6;
 
+    [SerializeField] VictoryDisplay victoryMessage = null;
+
+    public List<VisibleCube> visibleCubes;
+
+    // List of all the sames faces. Those list are used to check if the cube is completed 
     List<Transform> color1Faces = new List<Transform>();
     List<Transform> color2Faces = new List<Transform>();
     List<Transform> color3Faces = new List<Transform>();
@@ -28,25 +34,15 @@ public class Rubickscube : MonoBehaviour
     List<Transform> color5Faces = new List<Transform>();
     List<Transform> color6Faces = new List<Transform>();
 
-    [SerializeField] public uint shuffleNumber = 0;
-
-    [SerializeField] bool optimizedDisplay = true;
-
-    [SerializeField] VictoryDisplay victoryDisplay = null;
-
-
-
-    float lastUsedFactor;
-
-    public bool rotate = false;
+    public bool rotate = false; // used to know when the RubicksCube has a rotationg line
 
 
     // Start is called before the first frame update
     void Start()
     {
-        Launch();
-        
-        Shuffle();
+        Load();
+        //Launch();       
+        //Shuffle();
     }
 
     public void SetSize(System.Single _size) // used for the UI
@@ -58,9 +54,9 @@ public class Rubickscube : MonoBehaviour
         shuffleNumber = (uint)shufle;
     }
 
-    void Launch()  // Create the rubicks Cube
+    void Launch()  // Create the RubicksCube. It is create in position {0,0,0} and a null rotation 
     {
-        float U = (0.5f * (size - 1)) / size;
+        float U = (0.5f * (size - 1)) / size; // used to place the cubes in the RubickCube
 
         for (uint i = 0; i < size; i++)
         {
@@ -71,40 +67,41 @@ public class Rubickscube : MonoBehaviour
                     if (i == 0 || j == 0 || k == 0 || i == size - 1 || j == size - 1 || k == size - 1)
                     {
 
-                        VisibleCube newCube = Instantiate(refCube);
+                        VisibleCube newCube = Instantiate(referenceCube);
 
-                        newCube.transform.localScale = new Vector3(1.0f / size, 1.0f / size, 1.0f / size);
-
+                        // each cube has a parent which is place at the origin.
+                        //This parent will be rotate to move the slide of the cube without having to control the new position
+                        newCube.transform.localScale = new Vector3(1.0f / size, 1.0f / size, 1.0f / size); 
                         newCube.transform.parent = transform; // Put new Cube under the Rubicks Cube
-
                         newCube.transform.position = transform.position;
 
+                        // Place the cube in the RubickCube
                         newCube.transform.GetChild(0).position = new Vector3(i * (1.0f / size), j * (1.0f / size), k * (1.0f / size));
                         newCube.transform.GetChild(0).position -= new Vector3(U, U, U);
 
                         if (i == 0)
                         {
-                            newCube.AddFace(color1Faces, Vector3.right, Color1, 1);
+                            newCube.AddFace(color1Faces, Vector3.right, Color1);
                         }
                         if (j == 0)
                         {
-                            newCube.AddFace(color2Faces, Vector3.up, Color2, 2);
+                            newCube.AddFace(color2Faces, Vector3.up, Color2);
                         }
                         if (k == 0)
                         {
-                            newCube.AddFace(color3Faces, Vector3.forward, Color3, 3);
+                            newCube.AddFace(color3Faces, Vector3.forward, Color3);
                         }
                         if (i == size - 1)
                         {
-                            newCube.AddFace(color4Faces, -Vector3.right, Color4, 4);
+                            newCube.AddFace(color4Faces, -Vector3.right, Color4);
                         }
                         if (j == size - 1)
                         {
-                            newCube.AddFace(color5Faces, -Vector3.up, Color5, 5);
+                            newCube.AddFace(color5Faces, -Vector3.up, Color5);
                         }
                         if (k == size - 1)
                         {
-                            newCube.AddFace(color6Faces, -Vector3.forward, Color6, 6);
+                            newCube.AddFace(color6Faces, -Vector3.forward, Color6);
                         }
 
                         visibleCubes.Add(newCube);
@@ -113,16 +110,25 @@ public class Rubickscube : MonoBehaviour
             }
         }
 
-        if (optimizedDisplay)
+        SetVisibiltyColorlessFaces();
+
+    }
+
+    public void SwitchVisibiltyColorlessFaces()
+    {
+        optimizedDisplay = !optimizedDisplay;
+        SetVisibiltyColorlessFaces();
+    }
+
+    void SetVisibiltyColorlessFaces()
+    {
+        for (int i = 0; i < visibleCubes.Count; i++)
         {
-            for (int i = 0; i < visibleCubes.Count; i++)
-            {
-                visibleCubes[i].Optimize();
-            }
+            visibleCubes[i].Optimize(optimizedDisplay);
         }
     }
 
-    public void ReLaunch()
+    public void ReLaunch() // Clear All the lists and recreate the cube
     {
         for (int i = 0; i < visibleCubes.Count; i++)
         {
@@ -143,7 +149,7 @@ public class Rubickscube : MonoBehaviour
 
     }
 
-    public void Reset()
+    public void Reset() // restart the game
     {
         ReLaunch();
         Shuffle();
@@ -152,7 +158,11 @@ public class Rubickscube : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.R))
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
+        else if (Input.GetKeyDown(KeyCode.R))
         {
             ReLaunch();
         }
@@ -187,7 +197,7 @@ public class Rubickscube : MonoBehaviour
         }
     }
 
-    public void RotateLineAroundAxis(Vector3 axis, float height, float factor, float oldFactor, float direction = 1.0f)
+    public void RotateLineAroundAxis(Vector3 axis, float height, float factor, float oldFactor, float direction = 1.0f) // Rotate a line of 
     {
         Quaternion Start = transform.rotation;
         Quaternion End = Quaternion.AngleAxis(90 * direction, axis) * Start;
@@ -196,22 +206,22 @@ public class Rubickscube : MonoBehaviour
         {
             float localHeight = Vector3.Dot(visibleCubes[i].transform.GetChild(0).position, axis);
 
-            if (Mathf.Abs(height - localHeight) < (1.0f / size) / 2.0f)
+            if (Mathf.Abs(height - localHeight) < (1.0f / size) / 2.0f) // check if the cube is in the selected line
             {
                 Quaternion reset = Quaternion.Slerp(Start, End, oldFactor);
                 reset.x *= -1;
                 reset.y *= -1;
                 reset.z *= -1;
 
-                visibleCubes[i].transform.rotation = reset * visibleCubes[i].transform.rotation;
+                visibleCubes[i].transform.rotation = reset * visibleCubes[i].transform.rotation; // reset the cube to his old rotation
                 visibleCubes[i].transform.rotation = Quaternion.Slerp(Start, End, factor) * visibleCubes[i].transform.rotation;
             }
         }
 
-        DisplayVictory();
+        DisplayVictory(); // Check if the RubicksCube is complete
     }
 
-    void QuickRotateLineAroundAxis(Vector3 axis, float height) // Only used for Shuffle
+    void QuickRotateLineAroundAxis(Vector3 axis, float height) // Only used for Shuffle. 
     {
         Quaternion End = Quaternion.AngleAxis(90, axis) * transform.rotation;
 
@@ -224,7 +234,7 @@ public class Rubickscube : MonoBehaviour
                 visibleCubes[i].transform.rotation = End * visibleCubes[i].transform.rotation;
             }
         }
-        DisplayVictory();
+        DisplayVictory(); // Check if the RubicksCube is complete
     }
 
     public IEnumerator RotateLineAround(Vector3 axis, float height, float duration, float direction = 1.0f, float startFactor = 0.0f)
@@ -259,9 +269,9 @@ public class Rubickscube : MonoBehaviour
 
     void DisplayVictory()
     {
-        if (victoryDisplay)
+        if (victoryMessage)
         {
-            victoryDisplay.UpdateDisplay(CheckVictory());
+            victoryMessage.UpdateDisplay(CheckVictory());
         }
     }
 
@@ -304,13 +314,18 @@ public class Rubickscube : MonoBehaviour
     }
 
 
-    // Save Function
+    // Save Functions
+
+    public void OnDestroy() // Save the RubicksCube at the end of the game
+    {
+        Save();
+    }
 
     public void Save()
     {
         BinaryFormatter formatter = new BinaryFormatter();
         string path = Application.persistentDataPath + "/RubicksCubeWilliamDenis.save";
-        Debug.Log(path);
+
         FileStream stream = new FileStream(path, FileMode.Create);
 
 
@@ -332,6 +347,10 @@ public class Rubickscube : MonoBehaviour
             SaveData data = formatter.Deserialize(stream) as SaveData;
             data.Load(this);
             stream.Close();
+        }
+        else
+        {
+            Reset();
         }
     }
 
