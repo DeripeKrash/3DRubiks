@@ -79,7 +79,7 @@ public class SetupMovement : MonoBehaviour
         //ZoomIn/ZoomOut with mouse scrolling;
         if (Input.mouseScrollDelta.magnitude != 0)
         {
-            Camera.main.transform.Translate(Camera.main.transform.forward * Input.mouseScrollDelta.y);
+            Camera.main.transform.Translate(Camera.main.transform.forward * -Input.mouseScrollDelta.y);
         }
     }
 
