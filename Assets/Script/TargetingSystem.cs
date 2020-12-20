@@ -12,6 +12,7 @@ public class TargetingSystem : MonoBehaviour
     public Vector3 rotationVector;
 
     Vector3 refPos;
+
     Vector3 refworld;
     Vector3 refNormal;
     Vector3 axis;
@@ -63,8 +64,7 @@ public class TargetingSystem : MonoBehaviour
                 //Current mouse position on the plane;
                 Vector3 point = ray.GetPoint(distance);
 
-                //Check if the slice is rotating;
-                if ((oldFactor == 0 || oldFactor == 1) && (refPos - transform.InverseTransformPoint(point)).magnitude > 0.1f)
+                if ((oldFactor == 0 || oldFactor == 1) && (refPos - transform.InverseTransformPoint(point)).magnitude > 0.005f)
                 {
                     axis = SortVector(refNormal, (point - refworld).normalized);
 
