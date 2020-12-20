@@ -43,7 +43,7 @@ public class TargetingSystem : MonoBehaviour
                 refworld    = hit.point;
                 refNormal   = hit.normal;
                 //rotating    = true;
-                //refScreenPos = Input.mousePosition;
+                refScreenPos = Input.mousePosition;
             }
         }
 
