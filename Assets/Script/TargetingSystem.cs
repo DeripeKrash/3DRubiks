@@ -132,7 +132,6 @@ public class TargetingSystem : MonoBehaviour
             }
 
             animating = false;
-            //rotating = false;
             rubick.rotate = false;
         }
     }
