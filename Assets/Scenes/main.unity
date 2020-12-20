@@ -3828,6 +3828,8 @@ MonoBehaviour:
   brakeSpeed: 0.01
   inertia: 0
   rayCastLength: 1000
+  zoomMin: 1
+  zoomMax: 10
 --- !u!114 &2100868498
 MonoBehaviour:
   m_ObjectHideFlags: 0

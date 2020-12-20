@@ -8,6 +8,8 @@ public class SetupMovement : MonoBehaviour
     [SerializeField] private float brakeSpeed       = 0;
     [SerializeField] private bool inertia           = false;
     [SerializeField] private float rayCastLength    = 1000.0f;
+    [SerializeField] private float zoomMin          = 0;
+    [SerializeField] private float zoomMax          = 1000.0f;
 
     Rubickscube rubick;
 
@@ -88,7 +90,14 @@ public class SetupMovement : MonoBehaviour
         //ZoomIn/ZoomOut with mouse scrolling;
         if (Input.mouseScrollDelta.magnitude != 0)
         {
+            //Vector3 newPos = Camera.main.transform.position + (Camera.main.transform.forward * -Input.mouseScrollDelta.y);
             Camera.main.transform.Translate(Camera.main.transform.forward * -Input.mouseScrollDelta.y);
+
+            print((transform.position - Camera.main.transform.position).magnitude);
+            if ( (transform.position - Camera.main.transform.position).magnitude < zoomMin || (transform.position - Camera.main.transform.position).magnitude > zoomMax)
+            {
+                Camera.main.transform.Translate(Camera.main.transform.forward * Input.mouseScrollDelta.y);
+            }
         }
     }
 
