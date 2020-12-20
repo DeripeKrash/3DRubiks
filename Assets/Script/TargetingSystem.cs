@@ -14,11 +14,16 @@ public class TargetingSystem : MonoBehaviour
     Vector3 refPos;
     Vector3 refworld;
     Vector3 refNormal;
-    Vector3 refScreenPos;
+    Vector3 axis;
+
     Plane   plane;
 
+    float height    = 0;
+    float direction = 0;
+    float oldFactor = 0;
+    float factor    = 1;
+
     bool animating = false;
-    bool rotating = false;
 
     void Start()
     {
@@ -28,12 +33,7 @@ public class TargetingSystem : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (rubick.rotate)
-        {
-            return;
-        }
-
-        if (Input.GetMouseButtonDown(0) && !animating/* && !rotating*/)
+        if (Input.GetMouseButtonDown(0) && !animating)
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
@@ -43,60 +43,86 @@ public class TargetingSystem : MonoBehaviour
                 refPos      = transform.InverseTransformPoint(hit.point);
                 refworld    = hit.point;
                 refNormal   = hit.normal;
-                //rotating    = true;
-                refScreenPos = Input.mousePosition;
-                plane.SetNormalAndPosition(refworld, refNormal);
+                plane.SetNormalAndPosition(refNormal , refworld);
             }
         }
 
-        else if (Input.GetMouseButton(0) && !animating /*&& rotating*/)
+        else if (Input.GetMouseButton(0) && !animating)
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            //RaycastHit hit;
-            float distance = 0;
+            float distance;
 
-            if (plane.Raycast(ray,out distance) /*Physics.Raycast(ray, out hit, rayCastLength)*/)
+            if (plane.Raycast(ray,out distance))
             {
-                print("Point = " + ray.GetPoint(distance));
+                Vector3 point = ray.GetPoint(distance);
 
-                Vector3 localPosition = transform.InverseTransformPoint(ray.GetPoint(distance)/*hit.point*/);
-
-                if ((refPos - localPosition).magnitude > 0.3f)
+                if ((refPos - transform.InverseTransformPoint(point)).magnitude > 0.1f)
                 {
-
-                    //Vector3 axis = SortVector(refNormal, refworld + (Input.mousePosition - refScreenPos).normalized);
-
-                    Vector3 axis = SortVector(/*hit.normal*/refNormal, (ray.GetPoint(distance)/*hit.point*/ - refworld).normalized);
-
-                     if (Vector3.Angle(refNormal, /*hit.normal*/refNormal) != 0 && Vector3.Angle(refNormal, /*hit.normal*/refNormal) != 180) // Check if two different faces aren't checked
+                    if (oldFactor == 0 || oldFactor == 1)
                     {
-                        return;
+                        axis = SortVector(refNormal, (point - refworld).normalized);
                     }
-
                     Vector3 localAxis = transform.InverseTransformPoint(axis);
 
-                    float height = Vector3.Dot(localAxis, refPos);
-                    float direction = Direction(axis, refworld, ray.GetPoint(distance)/*hit.point*/);
+                    height = Vector3.Dot(localAxis, refPos);
 
+                    float oldDirection = direction;
 
-                    //rubick.rotate = true;
-                    //rubick.RotateLineAroundAxis(axis,height, 0, 1,direction);
-                    StartCoroutine(rubick.RotateLineAround(axis, height, 0.5f, direction));
-                    //rubick.rotate = false;
+                    direction = Direction(axis, refworld, point);
 
-                    //rubick.RotateLineAroundAxis();
+                    if (direction != oldDirection)
+                    {
+                        rubick.RotateLineAroundAxis(axis, height, 0, oldFactor, oldDirection);
+                        oldFactor = 0;
+                    }
+
+                    factor = (point - refPos).magnitude;
+
+                    print(factor);
+
+                    if (factor > 1)
+                    {
+                        factor = 1;
+                    }
+
+                    rubick.rotate = true;
+                    rubick.RotateLineAroundAxis(axis,height, factor, oldFactor,direction);
+
+                    oldFactor = factor;
+                    //StartCoroutine(rubick.RotateLineAround(axis, height, 0.5f, direction));
                 }
             }
         }
         else if (Input.GetMouseButtonUp(0))
         {
+            if (oldFactor != 0 && oldFactor != 1)
+            {
+                if (oldFactor >= 0.5)
+                {
+                    rubick.RotateLineAroundAxis(axis, height, 1, oldFactor, direction);
+                    oldFactor = 0;
+                }
+
+                else
+                {
+                    rubick.RotateLineAroundAxis(axis, height, 0, oldFactor, direction);
+                    oldFactor = 0;
+                }
+            }
+
+            else
+            {
+                oldFactor = 0;
+            }
+
             animating = false;
             //rotating = false;
+            rubick.rotate = false;
         }
     }
 
     //Find the Rotation Axis by finding wich face of the cube we selected;
-    public Vector3 SortVector(Vector3 normal, Vector3 vect)
+    Vector3 SortVector(Vector3 normal, Vector3 vect)
     {
         Vector3 localNormal = transform.InverseTransformPoint(normal);
         Vector3 localVect = transform.InverseTransformPoint(vect);
