@@ -12,6 +12,7 @@ public class TargetingSystem : MonoBehaviour
     public Vector3 rotationVector;
 
     Vector3 refPos;
+
     Vector3 refworld;
     Vector3 refNormal;
 
@@ -68,7 +69,6 @@ public class TargetingSystem : MonoBehaviour
                     StartCoroutine(rubick.RotateLineAround(axis, height, 0.5f, direction));
                     rubick.rotate = true;
 
-                    //rubick.RotateLineAroundAxis();
                 }
             }
         }
