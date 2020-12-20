@@ -129,10 +129,32 @@ public class Rubickscube : MonoBehaviour
 
     }
 
-    public void Reset() // restart the game
+    void Shuffle()
+    {
+        for (int i = 0; i < shuffleNumber; i++)
+        {
+            int axisNb = Random.Range(0, 3);
+
+            if (axisNb == 0)
+            {
+                QuickRotateLineAroundAxis(Vector3.up, Random.Range(-0.49f, 0.49f));
+            }
+            else if (axisNb == 1)
+            {
+                QuickRotateLineAroundAxis(Vector3.forward, Random.Range(-0.49f, 0.49f));
+            }
+            else if (axisNb == 2)
+            {
+                QuickRotateLineAroundAxis(Vector3.right, Random.Range(-0.49f, 0.49f));
+            }
+        }
+    }
+
+    public void Restart() // restart the game
     {
         ReLaunch();
         Shuffle();
+        DisplayVictory();
     }
 
     // Update is called once per frame
@@ -153,27 +175,6 @@ public class Rubickscube : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.L))
         {
             Load();
-        }
-    }
-
-    void Shuffle()
-    {
-        for (int i = 0; i < shuffleNumber; i++)
-        {
-            int axisNb = Random.Range(0, 3);
-
-            if (axisNb == 0)
-            {
-                QuickRotateLineAroundAxis(Vector3.up, Random.Range(-0.49f, 0.49f));
-            }
-            else if (axisNb == 1)
-            {
-                QuickRotateLineAroundAxis(Vector3.forward, Random.Range(-0.49f, 0.49f));
-            }
-            else if (axisNb == 2)
-            {
-                QuickRotateLineAroundAxis(Vector3.right, Random.Range(-0.49f, 0.49f));
-            }
         }
     }
 
@@ -346,7 +347,7 @@ public class Rubickscube : MonoBehaviour
         }
         else
         {
-            Reset();
+            Restart();
         }
     }
 

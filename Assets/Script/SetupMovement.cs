@@ -20,6 +20,7 @@ public class SetupMovement : MonoBehaviour
 
     Plane plane;
     float magnitude;
+    float velocity;
     bool rotating = false;
 
     Vector3 lastPos;
@@ -45,7 +46,8 @@ public class SetupMovement : MonoBehaviour
                 refNormal           = hit.normal;
                 plane.SetNormalAndPosition(refNormal, refPos);
                 rotating            = true;
-                oldLocation     = refPos;
+                oldLocation         = refPos;
+                velocity            = 0;
             }
         }
 
@@ -65,7 +67,6 @@ public class SetupMovement : MonoBehaviour
                 {
                     transform.rotation = Quaternion.AngleAxis(vect.magnitude * mouseSpeed * Time.deltaTime, axis) * transform.rotation;
                 }
-
                 else if (magnitude > vect.magnitude && vect.magnitude > 0)
                 {
                     transform.rotation = Quaternion.AngleAxis( -vect.magnitude * mouseSpeed * Time.deltaTime, axis) * transform.rotation;
@@ -74,29 +75,28 @@ public class SetupMovement : MonoBehaviour
 
                 else
                 {
-                    magnitude = 0;
+                    velocity = 0;
                 }
 
-                //transform.rotation  = Quaternion.AngleAxis(magnitude * mouseSpeed * Time.deltaTime, axis) * transform.rotation;
                 oldLocation         = point;
-                magnitude = vect.magnitude;
+                velocity            = vect.magnitude;
             }
         }
 
         //Stop rotating the cube or apply inertia when realeasing the key;
         else
         {
-            if (magnitude > 0 && inertia && !rubick.rotate)
+            if (velocity > 0 && inertia && !rubick.rotate)
             {
-                transform.rotation  = Quaternion.AngleAxis(magnitude * mouseSpeed * Time.deltaTime, axis) * transform.rotation;
-                magnitude           -= brakeSpeed;
+                transform.rotation  = Quaternion.AngleAxis(velocity * mouseSpeed * Time.deltaTime, axis) * transform.rotation;
+                velocity -= brakeSpeed;
             }
-
             else
             {
-                magnitude = 0;
+                velocity = 0;
             }
 
+            magnitude = 0;
             rotating = false;
         }
 
@@ -105,7 +105,6 @@ public class SetupMovement : MonoBehaviour
         {
             Camera.main.transform.Translate(Camera.main.transform.forward * -Input.mouseScrollDelta.y);
 
-            print((transform.position - Camera.main.transform.position).magnitude);
             if ( (transform.position - Camera.main.transform.position).magnitude < zoomMin || (transform.position - Camera.main.transform.position).magnitude > zoomMax)
             {
                 Camera.main.transform.Translate(Camera.main.transform.forward * Input.mouseScrollDelta.y);
