@@ -2,10 +2,11 @@
 
 Projet Rubicks Cube 3D
 
-Denis Petit
-William Nardone
+## Credit
+ Denis Petit     
+ William Nardone
 
-Feature : 
+## Feature : 
 
  - You can rotate the cube by moving the cursor on the cube while pressing the right button on the mouse
  
